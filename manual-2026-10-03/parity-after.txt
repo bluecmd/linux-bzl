@@ -1,0 +1,45 @@
+PARITY build=RED diff=NOT converged errors=76 warnings=22 artifacts=skipped(build red)
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_time' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_gettimeofday' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_getrandom' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_getcpu' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_clock_gettime' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_clock_getres' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'time' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'gettimeofday' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'getrandom' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'getcpu' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'clock_gettime' failed: symbol not defined
+      1 ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'clock_getres' failed: symbol not defined
+      1 ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:36659:12: Linking arch/x86/entry/vdso/vdso64/vdso64.so.dbg with the linker itself failed: (Exit 1): ld.lld f
+      1 ERROR: Build did NOT complete successfully
+NOT converged  errors=76  warnings=22
+
+[error] defines_diff x36
+     36  defines differ
+  cmake_only (add on bazel / accept in config):
+       36  __KERNEL__
+
+[error] flags_diff x28
+     28  cmake compile flags missing on bazel side
+  cmake_only (add on bazel / accept in config):
+       28  -include include/linux/compiler_types.h
+  bazel_only (usually tolerated):
+       28  -include -D__KERNEL__
+
+[warn] extra_tu x12
+     12  source compiled in bazel but not cmake
+
+[error] includes_diff x5
+      5  layout link missing on bazel side: the reference reaches `<name>/...` through a link the build created (not a source); give the directory a cc_library view with include_prefix = "<name>" and strip_include_prefix = "/<dir>"
+  cmake_only (add on bazel / accept in config):
+        5  source -> .
+
+[warn] generated_unrecorded x3
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/lexer.lex.c": "committed"
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/parser.tab.c": "committed"
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/parser.tab.h": "committed"
+  cmake_only (add on bazel / accept in config):
+        1  scripts/kconfig/lexer.lex.c
+        1  scripts/kconfig/parser.tab.c
+        1  scripts/kconfig/parser.tab.h

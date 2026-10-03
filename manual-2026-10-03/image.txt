@@ -1,0 +1,11 @@
+IMAGE: bzImage target //:bzImage failed
+ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:36659:12: Linking arch/x86/entry/vdso/vdso64/vdso64.so.dbg with the linker itself failed: (Exit 1): ld.lld failed: error executing CppLink command (from cc_raw_link rule target //:vdso64_so) external/+kernel_llvm_toolchain+kernel_llvm/bin/ld.lld -shared '--hash-style=both' '--build-id=sha1' --no-undefined --eh-frame-hdr -Bsymbolic -z noexecstack -m elf_x86_64 -soname linux-vdso.so.1 -z ... (remaining 8 arguments skipped)
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'clock_gettime' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_clock_gettime' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'gettimeofday' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_gettimeofday' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'getcpu' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_getcpu' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'time' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_time' failed: symbol not defined
+ld.lld: error: version script assignment of 'LINUX_2.6' to symbol 'clock_getres' failed: symbol not defined
