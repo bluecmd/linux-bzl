@@ -1,0 +1,3 @@
+IMAGE: bzImage target //:bzImage failed
+ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:5782:8: Executing genrule //:tmp_vmlinux_nm_sort failed: (Exit 2): bash failed: error executing Genrule command (from genrule rule target //:tmp_vmlinux_nm_sort) /bin/bash -c ... (remaining 1 argument skipped)
+ERROR: Build did NOT complete successfully

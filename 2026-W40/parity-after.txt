@@ -1,0 +1,36 @@
+PARITY build=RED diff=NOT converged errors=13 warnings=8 artifacts=skipped(build red)
+      1 ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:6099:8: Executing genrule //:vmlinux_symvers failed: not all outputs were created or valid
+      1 ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:6099:8: declared output '.vmlinux.export.c' was not created by genrule. This is probably because the genrule
+      1 ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:5937:8: Executing genrule //:vdso64_image_c failed: (Exit 1): bash failed: error executing Genrule command  
+      1 ERROR: /scratch/bluecmd/linux-bzl/linux/BUILD.bazel:5782:8: Executing genrule //:tmp_vmlinux_nm_sort failed: (Exit 2): bash failed: error executing Genrule comm
+      1 ERROR: Build did NOT complete successfully
+NOT converged  errors=13  warnings=8
+
+[error] includes_diff x5
+      5  layout link missing on bazel side: the reference reaches `<name>/...` through a link the build created (not a source); give the directory a cc_library view with include_prefix = "<name>" and strip_include_prefix = "/<dir>"
+  cmake_only (add on bazel / accept in config):
+        5  source -> .
+
+[warn] generated_unrecorded x3
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/lexer.lex.c": "committed"
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/parser.tab.c": "committed"
+      1  carried as a committed copy of the reference's file; the build wrote it, but the capture does not say what wrote it. The generator is not modelled and the content check is circular (the committed copy IS the reference output). Fix: model it (file-I/O tracing, exec-capture slice 5) and emit a genrule, or accept after review with codegen_map "scripts/kconfig/parser.tab.h": "committed"
+  cmake_only (add on bazel / accept in config):
+        1  scripts/kconfig/lexer.lex.c
+        1  scripts/kconfig/parser.tab.c
+        1  scripts/kconfig/parser.tab.h
+
+[warn] generated_content_unverified x3
+      1  bazel produces it (modpost @ //:vmlinux_symvers) but its content is only on disk after a build: run `bazel build //:vmlinux_symvers` and re-run the diff
+      1  bazel produces it (bin &&  @ //:voffset_h) but its content is only on disk after a build: run `bazel build //:voffset_h` and re-run the diff
+      1  bazel produces it (vdso2c @ //:vdso64_image_c) but its content is only on disk after a build: run `bazel build //:vdso64_image_c` and re-run the diff
+  bazel_only (usually tolerated):
+        1  bazel build //:vmlinux_symvers
+        1  bazel build //:voffset_h
+        1  bazel build //:vdso64_image_c
+
+[error] generated_content_diff x3
+      1  generated file differs at line 1 (10 lines cmake / 0 bazel; cmake: sh @ recipe line; bazel: sh @ //:zoffset_h, read from bazel-out/k8-fastbuild/bin/arch/x86/boot/zoffset.h); normalised: trailing-blank-lines
+      1  generated file differs at line 1 (25 lines cmake / 0 bazel; cmake: sh @ recipe line; bazel: sh @ //:pasyms_h, read from bazel-out/k8-fastbuild/bin/arch/x86/realmode/rm/pasyms.h); normalised: trailing-blank-lines
+      1  generated file differs at line 327 (862 lines cmake / 858 bazel; cmake: conf @ None; bazel: bash @ //:auto_conf, read from bazel-out/k8-opt-exec/bin/include/generated/autoconf.h); normalised: trailing-blank-lines
+  cmake_only (add on bazel / accept in config):
