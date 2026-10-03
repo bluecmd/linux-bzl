@@ -1,0 +1,9 @@
+common --check_direct_dependencies=warning
+# Everything in this tree is kernel code: the kernel platform selects the
+# kernel cc toolchain; host tools build for the exec platform with the
+# hermetic LLVM toolchain.
+build --platforms=//platforms:x86_64_kernel
+build --incompatible_enable_cc_toolchain_resolution
+
+# host-local settings (not committed)
+try-import %workspace%/user.bazelrc
