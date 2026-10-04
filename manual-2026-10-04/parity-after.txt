@@ -1,0 +1,32 @@
+PARITY build=GREEN diff=NOT converged errors=6 warnings=17 artifacts=converged 0 errors
+IDIOM score=75.9 (delta +0.0) rules=1129 tus=1243 genrules=647 dirs=119
+NOT converged  errors=6  warnings=17
+
+[warn] defines_diff x7
+      7  defines differ
+  bazel_only (usually tolerated):
+        7  NDEBUG
+        7  _FORTIFY_SOURCE=1
+
+[warn] extra_tu x5
+      5  source compiled in bazel but not cmake
+
+[error] generated_content_diff x4
+      1  generated file differs at line 1 (6 lines cmake / 6 bazel; cmake: sh @ recipe line; bazel: sh @ //:voffset_h, read from bazel-out/k8-fastbuild/bin/arch/x86/boot/voffset.h); normalised: trailing-blank-lines
+      1  generated file differs at line 1 (10 lines cmake / 10 bazel; cmake: sh @ recipe line; bazel: sh @ //:zoffset_h, read from bazel-out/k8-fastbuild/bin/arch/x86/boot/zoffset.h); normalised: trailing-blank-lines
+      1  generated file differs at line 18 (582 lines cmake / 582 bazel; cmake: vdso2c @ None; bazel: vdso2c @ //:vdso64_image_c, read from bazel-out/k8-fastbuild/bin/arch/x86/entry/vdso/vdso64/vdso64-image.c); normalised: trailing-blank-lines, trailing-whitespace
+      1  generated file differs at line 327 (862 lines cmake / 858 bazel; cmake: conf @ None; bazel: bash @ //:auto_conf, read from bazel-out/k8-opt-exec/bin/include/generated/autoconf.h); normalised: trailing-blank-lines
+  cmake_only (add on bazel / accept in config):
+        1  #define VO___bss_start _AC(0xffffffff81ba9000,UL)
+        1  #define VO___inittext_end _AC(0xffffffff81b14000,UL)
+        1  #define VO___start_rodata _AC(0xffffffff81800000,UL)
+        1  #define VO__end _AC(0xffffffff81c02000,UL)
+        1  #define VO__sinittext _AC(0xffffffff81acd000,UL)
+        1  #define ZO__data 0x000000000024a000
+        1  #define ZO__edata 0x000000000024a400
+        1  #define ZO__ehead 0x00000000000002a3
+        1  #define ZO__end 0x0000000000284000
+        1  #define ZO__text 0x00000000002434c0
+        1  	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4A, 0x11, 0x00, 0x00,
+        1  	0x00, 0x00, 0x00, 0x00, 0x4A, 0x11, 0x00, 0x00, 0x00, 0x00,
+        1  	0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
