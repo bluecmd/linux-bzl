@@ -1,0 +1,59 @@
+{
+  "package": ".",
+  "targets": {},
+  "build_lines": 68386,
+  "compiled_sources": 0,
+  "build_lines_per_source": null,
+  "counts": {
+    "undeclared_include": 0,
+    "private_include": 0,
+    "unowned_header": 0,
+    "catch_all_include": 0,
+    "multiply_owned": 0,
+    "catch_all_library": 1,
+    "recursive_glob": 1,
+    "genrule_plumbing": 0,
+    "script_as_src": 0,
+    "embedded_content": 0,
+    "include_flag_in_copts": 2109,
+    "repeated_flag": 11051,
+    "toolchain_flag_in_copts": 91,
+    "absolute_path_in_flags": 0,
+    "todo": 253
+  },
+  "examples": {
+    "recursive_glob": [
+      "pkg_headers.hdrs"
+    ],
+    "catch_all_library": [
+      "pkg_headers"
+    ],
+    "include_flag_in_copts": [
+      "conf: -Iscripts/include",
+      "conf: -Iscripts/kconfig",
+      "conmakehash: -Iscripts/include",
+      "conmakehash: -Idrivers/tty/vt",
+      "conmakehash: -I$(GENDIR)/drivers/tty/vt"
+    ],
+    "repeated_flag": [
+      "copts --target=x86_64-linux-gnu x122",
+      "copts -DBUILD_STR(s)=#s x3",
+      "copts -DBUILD_VDSO x5",
+      "copts -DBUILD_VDSO64 x5",
+      "copts -DDISABLE_BRANCH_PROFILING x7"
+    ],
+    "toolchain_flag_in_copts": [
+      "copts --target=x86_64-linux-gnu (toolchain supplies it)",
+      "copts -D__KERNEL__ (toolchain supplies it)",
+      "copts -Os (toolchain supplies it)",
+      "copts -Wall (toolchain supplies it)",
+      "copts -Wcast-function-type (toolchain supplies it)"
+    ]
+  },
+  "not_checked": {
+    "missing_dotd": 0,
+    "external_or_toolchain_headers": 0
+  },
+  "layering_findings": 0,
+  "structure_findings": 13506
+}

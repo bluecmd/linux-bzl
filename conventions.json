@@ -1,0 +1,55 @@
+{
+  "//": "any2bazel emit_build.py conventions for the linux-bzl workspace: the kernel tree is the Bazel workspace (project root .), kernel code compiles with //toolchain (the kernel's own line, probed), host tools with the hermetic LLVM exec toolchain. Workspace facts only.",
+  "toolchain_probe": "toolchain/bazel-probe.json",
+  "drop_linkopts": [],
+  "drop_linkopts_prefixes": [],
+  "system_libs": [
+    "m",
+    "c"
+  ],
+  "include_roots": [],
+  "header_providers": [],
+  "resolver": {
+    "elf": {
+      "deps": [
+        "@elfutils//:libelf"
+      ],
+      "linkopts": [],
+      "shared_linkopts": []
+    }
+  },
+  "host_tools": {
+    "bc": "@bc//:bc"
+  },
+  "genrule_env": {},
+  "config_template": {
+    "toolchain_includes": []
+  },
+  "cxx_linkopts": [],
+  "host_tool_linkopts": [],
+  "per_source_library": {
+    "load": "//bazel/rules:cc_per_source_library.bzl"
+  },
+  "object_files": {
+    "load": "//bazel/rules:cc_object_files.bzl"
+  },
+  "raw_link": {
+    "load": "//bazel/rules:cc_raw_link.bzl"
+  },
+  "cc_objects": {
+    "load": "//bazel/rules:cc_objects.bzl"
+  },
+  "ar_archive": {
+    "load": "//bazel/rules:ar_archive.bzl",
+    "ar": "@kernel_llvm//:bin/llvm-ar"
+  },
+  "tree_recipe": {
+    "load": "//bazel/rules:tree_recipe.bzl",
+    "rule": "tree_recipe",
+    "env": "map",
+    "execroot": true
+  },
+  "toolchain_features": [
+    "kernel_compile_flags"
+  ]
+}
