@@ -1,0 +1,2 @@
+IMAGE: 2417664 /scratch/bluecmd/linux-bzl/image/bzImage
+IMAGE: 2623909 /scratch/bluecmd/linux-bzl/image/initrd.cpio.gz
