@@ -1,0 +1,107 @@
+# drivers/media/platform: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "platform_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_media_platform_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "//drivers/media/platform/allegro-dvt:drivers_media_platform_allegro_dvt_built_in_a",
+        "//drivers/media/platform/amd:drivers_media_platform_amd_built_in_a",
+        "//drivers/media/platform/amlogic:drivers_media_platform_amlogic_built_in_a",
+        "//drivers/media/platform/amphion:drivers_media_platform_amphion_built_in_a",
+        "//drivers/media/platform/arm:drivers_media_platform_arm_built_in_a",
+        "//drivers/media/platform/aspeed:drivers_media_platform_aspeed_built_in_a",
+        "//drivers/media/platform/atmel:drivers_media_platform_atmel_built_in_a",
+        "//drivers/media/platform/broadcom:drivers_media_platform_broadcom_built_in_a",
+        "//drivers/media/platform/cadence:drivers_media_platform_cadence_built_in_a",
+        "//drivers/media/platform/chips-media:drivers_media_platform_chips_media_built_in_a",
+        "//drivers/media/platform/imagination:drivers_media_platform_imagination_built_in_a",
+        "//drivers/media/platform/intel:drivers_media_platform_intel_built_in_a",
+        "//drivers/media/platform/marvell:drivers_media_platform_marvell_built_in_a",
+        "//drivers/media/platform/mediatek:drivers_media_platform_mediatek_built_in_a",
+        "//drivers/media/platform/microchip:drivers_media_platform_microchip_built_in_a",
+        "//drivers/media/platform/nuvoton:drivers_media_platform_nuvoton_built_in_a",
+        "//drivers/media/platform/nvidia:drivers_media_platform_nvidia_built_in_a",
+        "//drivers/media/platform/nxp:drivers_media_platform_nxp_built_in_a",
+        "//drivers/media/platform/qcom:drivers_media_platform_qcom_built_in_a",
+        "//drivers/media/platform/raspberrypi:drivers_media_platform_raspberrypi_built_in_a",
+        "//drivers/media/platform/renesas:drivers_media_platform_renesas_built_in_a",
+        "//drivers/media/platform/rockchip:drivers_media_platform_rockchip_built_in_a",
+        "//drivers/media/platform/samsung:drivers_media_platform_samsung_built_in_a",
+        "//drivers/media/platform/st:drivers_media_platform_st_built_in_a",
+        "//drivers/media/platform/sunxi:drivers_media_platform_sunxi_built_in_a",
+        "//drivers/media/platform/synopsys:drivers_media_platform_synopsys_built_in_a",
+        "//drivers/media/platform/ti:drivers_media_platform_ti_built_in_a",
+        "//drivers/media/platform/verisilicon:drivers_media_platform_verisilicon_built_in_a",
+        "//drivers/media/platform/via:drivers_media_platform_via_built_in_a",
+        "//drivers/media/platform/xilinx:drivers_media_platform_xilinx_built_in_a",
+    ],
+    srcs = [
+        "//drivers/media/platform/allegro-dvt:drivers_media_platform_allegro_dvt_built_in_a",
+        "//drivers/media/platform/amd:drivers_media_platform_amd_built_in_a",
+        "//drivers/media/platform/amlogic:drivers_media_platform_amlogic_built_in_a",
+        "//drivers/media/platform/amphion:drivers_media_platform_amphion_built_in_a",
+        "//drivers/media/platform/arm:drivers_media_platform_arm_built_in_a",
+        "//drivers/media/platform/aspeed:drivers_media_platform_aspeed_built_in_a",
+        "//drivers/media/platform/atmel:drivers_media_platform_atmel_built_in_a",
+        "//drivers/media/platform/broadcom:drivers_media_platform_broadcom_built_in_a",
+        "//drivers/media/platform/cadence:drivers_media_platform_cadence_built_in_a",
+        "//drivers/media/platform/chips-media:drivers_media_platform_chips_media_built_in_a",
+        "//drivers/media/platform/imagination:drivers_media_platform_imagination_built_in_a",
+        "//drivers/media/platform/intel:drivers_media_platform_intel_built_in_a",
+        "//drivers/media/platform/marvell:drivers_media_platform_marvell_built_in_a",
+        "//drivers/media/platform/mediatek:drivers_media_platform_mediatek_built_in_a",
+        "//drivers/media/platform/microchip:drivers_media_platform_microchip_built_in_a",
+        "//drivers/media/platform/nuvoton:drivers_media_platform_nuvoton_built_in_a",
+        "//drivers/media/platform/nvidia:drivers_media_platform_nvidia_built_in_a",
+        "//drivers/media/platform/nxp:drivers_media_platform_nxp_built_in_a",
+        "//drivers/media/platform/qcom:drivers_media_platform_qcom_built_in_a",
+        "//drivers/media/platform/raspberrypi:drivers_media_platform_raspberrypi_built_in_a",
+        "//drivers/media/platform/renesas:drivers_media_platform_renesas_built_in_a",
+        "//drivers/media/platform/rockchip:drivers_media_platform_rockchip_built_in_a",
+        "//drivers/media/platform/samsung:drivers_media_platform_samsung_built_in_a",
+        "//drivers/media/platform/st:drivers_media_platform_st_built_in_a",
+        "//drivers/media/platform/sunxi:drivers_media_platform_sunxi_built_in_a",
+        "//drivers/media/platform/synopsys:drivers_media_platform_synopsys_built_in_a",
+        "//drivers/media/platform/ti:drivers_media_platform_ti_built_in_a",
+        "//drivers/media/platform/verisilicon:drivers_media_platform_verisilicon_built_in_a",
+        "//drivers/media/platform/via:drivers_media_platform_via_built_in_a",
+        "//drivers/media/platform/xilinx:drivers_media_platform_xilinx_built_in_a",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

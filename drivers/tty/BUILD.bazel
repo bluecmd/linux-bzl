@@ -1,0 +1,159 @@
+# drivers/tty: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_tty_built-in (static_library) -> cc_library drivers_tty_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "tty_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_tty_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_tty_built_in_objects",
+    lib = ":drivers_tty_built_in",
+    objects = [
+        "n_null.o",
+        "n_tty.o",
+        "pty.o",
+        "tty_baudrate.o",
+        "tty_buffer.o",
+        "tty_io.o",
+        "tty_ioctl.o",
+        "tty_jobctrl.o",
+        "tty_ldisc.o",
+        "tty_ldsem.o",
+        "tty_mutex.o",
+        "tty_port.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_tty_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "tty_io.o",
+        "n_tty.o",
+        "tty_ioctl.o",
+        "tty_ldisc.o",
+        "tty_buffer.o",
+        "tty_port.o",
+        "tty_mutex.o",
+        "tty_ldsem.o",
+        "tty_baudrate.o",
+        "tty_jobctrl.o",
+        "n_null.o",
+        "pty.o",
+        "//drivers/tty/vt:drivers_tty_vt_built_in_a",
+        "//drivers/tty/hvc:drivers_tty_hvc_built_in_a",
+        "//drivers/tty/serial:drivers_tty_serial_built_in_a",
+        "//drivers/tty/ipwireless:drivers_tty_ipwireless_built_in_a",
+    ],
+    srcs = [
+        "tty_io.o",
+        "n_tty.o",
+        "tty_ioctl.o",
+        "tty_ldisc.o",
+        "tty_buffer.o",
+        "tty_port.o",
+        "tty_mutex.o",
+        "tty_ldsem.o",
+        "tty_baudrate.o",
+        "tty_jobctrl.o",
+        "n_null.o",
+        "pty.o",
+        "//drivers/tty/vt:drivers_tty_vt_built_in_a",
+        "//drivers/tty/hvc:drivers_tty_hvc_built_in_a",
+        "//drivers/tty/serial:drivers_tty_serial_built_in_a",
+        "//drivers/tty/ipwireless:drivers_tty_ipwireless_built_in_a",
+        "//drivers/tty/vt:ucs.o",
+        "//drivers/tty/vt:consolemap_deftbl.o",
+        "//drivers/tty/vt:consolemap.o",
+        "//drivers/tty/vt:defkeymap.o",
+        "//drivers/tty/vt:vt.o",
+        "//drivers/tty/vt:keyboard.o",
+        "//drivers/tty/vt:selection.o",
+        "//drivers/tty/vt:vc_screen.o",
+        "//drivers/tty/vt:vt_ioctl.o",
+        "//drivers/tty/hvc:hvc_console.o",
+        "//drivers/tty/serial/8250:8250_pericom.o",
+        "//drivers/tty/serial/8250:8250_pci.o",
+        "//drivers/tty/serial/8250:8250_mid.o",
+        "//drivers/tty/serial/8250:8250_lpss.o",
+        "//drivers/tty/serial/8250:8250_exar.o",
+        "//drivers/tty/serial/8250:8250_early.o",
+        "//drivers/tty/serial/8250:8250_pcilib.o",
+        "//drivers/tty/serial/8250:8250_dwlib.o",
+        "//drivers/tty/serial/8250:8250_port.o",
+        "//drivers/tty/serial/8250:8250_platform.o",
+        "//drivers/tty/serial/8250:8250_core.o",
+        "//drivers/tty/serial:earlycon.o",
+        "//drivers/tty/serial:serial_port.o",
+        "//drivers/tty/serial:serial_ctrl.o",
+        "//drivers/tty/serial:serial_base_bus.o",
+        "//drivers/tty/serial:serial_core.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `drivers_tty_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "drivers_tty_built_in",
+    srcs = [
+        "n_null.c",
+        "n_tty.c",
+        "pty.c",
+        "tty_baudrate.c",
+        "tty_buffer.c",
+        "tty_io.c",
+        "tty_ioctl.c",
+        "tty_jobctrl.c",
+        "tty_ldisc.c",
+        "tty_ldsem.c",
+        "tty_mutex.c",
+        "tty_port.c",
+    ],
+    copts = [
+        "-Idrivers/tty",
+        "-I$(GENDIR)/drivers/tty",
+    ],
+    deps = [
+        ":tty_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+)

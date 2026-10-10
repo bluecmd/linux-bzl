@@ -1,0 +1,93 @@
+# drivers/soc: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "soc_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_soc_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "//drivers/soc/apple:drivers_soc_apple_built_in_a",
+        "//drivers/soc/aspeed:drivers_soc_aspeed_built_in_a",
+        "//drivers/soc/bcm:drivers_soc_bcm_built_in_a",
+        "//drivers/soc/fsl:drivers_soc_fsl_built_in_a",
+        "//drivers/soc/fujitsu:drivers_soc_fujitsu_built_in_a",
+        "//drivers/soc/hisilicon:drivers_soc_hisilicon_built_in_a",
+        "//drivers/soc/imx:drivers_soc_imx_built_in_a",
+        "//drivers/soc/ixp4xx:drivers_soc_ixp4xx_built_in_a",
+        "//drivers/soc/loongson:drivers_soc_loongson_built_in_a",
+        "//drivers/soc/mediatek:drivers_soc_mediatek_built_in_a",
+        "//drivers/soc/microchip:drivers_soc_microchip_built_in_a",
+        "//drivers/soc/nuvoton:drivers_soc_nuvoton_built_in_a",
+        "//drivers/soc/pxa:drivers_soc_pxa_built_in_a",
+        "//drivers/soc/amlogic:drivers_soc_amlogic_built_in_a",
+        "//drivers/soc/qcom:drivers_soc_qcom_built_in_a",
+        "//drivers/soc/renesas:drivers_soc_renesas_built_in_a",
+        "//drivers/soc/rockchip:drivers_soc_rockchip_built_in_a",
+        "//drivers/soc/sophgo:drivers_soc_sophgo_built_in_a",
+        "//drivers/soc/sunxi:drivers_soc_sunxi_built_in_a",
+        "//drivers/soc/ti:drivers_soc_ti_built_in_a",
+        "//drivers/soc/versatile:drivers_soc_versatile_built_in_a",
+        "//drivers/soc/vt8500:drivers_soc_vt8500_built_in_a",
+        "//drivers/soc/xilinx:drivers_soc_xilinx_built_in_a",
+    ],
+    srcs = [
+        "//drivers/soc/apple:drivers_soc_apple_built_in_a",
+        "//drivers/soc/aspeed:drivers_soc_aspeed_built_in_a",
+        "//drivers/soc/bcm:drivers_soc_bcm_built_in_a",
+        "//drivers/soc/fsl:drivers_soc_fsl_built_in_a",
+        "//drivers/soc/fujitsu:drivers_soc_fujitsu_built_in_a",
+        "//drivers/soc/hisilicon:drivers_soc_hisilicon_built_in_a",
+        "//drivers/soc/imx:drivers_soc_imx_built_in_a",
+        "//drivers/soc/ixp4xx:drivers_soc_ixp4xx_built_in_a",
+        "//drivers/soc/loongson:drivers_soc_loongson_built_in_a",
+        "//drivers/soc/mediatek:drivers_soc_mediatek_built_in_a",
+        "//drivers/soc/microchip:drivers_soc_microchip_built_in_a",
+        "//drivers/soc/nuvoton:drivers_soc_nuvoton_built_in_a",
+        "//drivers/soc/pxa:drivers_soc_pxa_built_in_a",
+        "//drivers/soc/amlogic:drivers_soc_amlogic_built_in_a",
+        "//drivers/soc/qcom:drivers_soc_qcom_built_in_a",
+        "//drivers/soc/renesas:drivers_soc_renesas_built_in_a",
+        "//drivers/soc/rockchip:drivers_soc_rockchip_built_in_a",
+        "//drivers/soc/sophgo:drivers_soc_sophgo_built_in_a",
+        "//drivers/soc/sunxi:drivers_soc_sunxi_built_in_a",
+        "//drivers/soc/ti:drivers_soc_ti_built_in_a",
+        "//drivers/soc/versatile:drivers_soc_versatile_built_in_a",
+        "//drivers/soc/vt8500:drivers_soc_vt8500_built_in_a",
+        "//drivers/soc/xilinx:drivers_soc_xilinx_built_in_a",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

@@ -1,0 +1,246 @@
+# arch/x86/realmode: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   arch_x86_realmode_built-in (static_library) -> cc_library arch_x86_realmode_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "realmode_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `arch_x86_realmode_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_realmode_built_in_objects",
+    lib = ":arch_x86_realmode_built_in",
+    objects = ["init.o"],
+)
+
+# the object(s) of `arch_x86_realmode_built_in_rmpiggy` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_realmode_built_in_rmpiggy_objects",
+    lib = ":arch_x86_realmode_built_in_rmpiggy",
+    objects = ["rmpiggy.o"],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "arch_x86_realmode_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "init.o",
+        "rmpiggy.o",
+    ],
+    srcs = [
+        "init.o",
+        "rmpiggy.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `arch_x86_realmode_built-in` (static library)
+# additional_compiler_inputs: files the assembler .incbin's
+cc_library(
+    name = "arch_x86_realmode_built_in",
+    srcs = ["init.c"],
+    copts = [
+        "-nostdinc",
+        "-Iarch/x86/include",
+        "-I$(GENDIR)/arch/x86/include",
+        "-Iarch/x86/include/generated",
+        "-I$(GENDIR)/arch/x86/include/generated",
+        "-Iinclude",
+        "-I$(GENDIR)/include",
+        "-Iarch/x86/include/uapi",
+        "-Iarch/x86/include/generated/uapi",
+        "-I$(GENDIR)/arch/x86/include/generated/uapi",
+        "-Iinclude/uapi",
+        "-Iinclude/generated/uapi",
+        "-I$(GENDIR)/include/generated/uapi",
+        "-include",
+        "include/linux/compiler-version.h",
+        "-include",
+        "include/linux/kconfig.h",
+        "-include",
+        "include/linux/compiler_types.h",
+        "-D__KERNEL__",
+        "--target=x86_64-linux-gnu",
+        "-fintegrated-as",
+        "-Werror=unknown-warning-option",
+        "-Werror=ignored-optimization-argument",
+        "-Werror=option-ignored",
+        "-Werror=unused-command-line-argument",
+        "-fshort-wchar",
+        "-funsigned-char",
+        "-fno-common",
+        "-fno-PIE",
+        "-fno-strict-aliasing",
+        "-std=gnu11",
+        "-fms-extensions",
+        "-Wno-gnu",
+        "-Wno-microsoft-anon-tag",
+        "-mno-sse",
+        "-mno-mmx",
+        "-mno-sse2",
+        "-mno-3dnow",
+        "-mno-avx",
+        "-mno-sse4a",
+        "-fcf-protection=branch",
+        "-fno-jump-tables",
+        "-m64",
+        "-falign-loops=1",
+        "-mno-80387",
+        "-mno-fp-ret-in-387",
+        "-mstack-alignment=8",
+        "-mskip-rax-setup",
+        "-march=x86-64",
+        "-mtune=generic",
+        "-mno-red-zone",
+        "-mcmodel=kernel",
+        "-Wno-sign-compare",
+        "-fno-asynchronous-unwind-tables",
+        "-fno-delete-null-pointer-checks",
+        "-Os",
+        "-fno-stack-protector",
+        "-fomit-frame-pointer",
+        "-ftrivial-auto-var-init=zero",
+        "-fexperimental-late-parse-attributes",
+        "-fno-stack-clash-protection",
+        "-falign-functions=16",
+        "-fstrict-flex-arrays=3",
+        "-fno-strict-overflow",
+        "-fno-stack-check",
+        "-fno-builtin-wcslen",
+        "-Wall",
+        "-Wextra",
+        "-Wundef",
+        "-Werror=implicit-function-declaration",
+        "-Werror=implicit-int",
+        "-Werror=return-type",
+        "-Werror=strict-prototypes",
+        "-Wno-format-security",
+        "-Wno-trigraphs",
+        "-Wno-frame-address",
+        "-Wno-address-of-packed-member",
+        "-Wmissing-declarations",
+        "-Wmissing-prototypes",
+        "-Wframe-larger-than=1280",
+        "-Wno-format-overflow-non-kprintf",
+        "-Wno-format-truncation-non-kprintf",
+        "-Wno-default-const-init-unsafe",
+        "-Wno-type-limits",
+        "-Wno-pointer-sign",
+        "-Wcast-function-type",
+        "-Wno-unterminated-string-initialization",
+        "-Wimplicit-fallthrough",
+        "-Werror=date-time",
+        "-Werror=incompatible-pointer-types",
+        "-Wenum-conversion",
+        "-Wunused",
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-const-variable",
+        "-Wno-format-overflow",
+        "-Wno-override-init",
+        "-Wno-pointer-to-enum-cast",
+        "-Wno-tautological-constant-out-of-range-compare",
+        "-Wno-unaligned-access",
+        "-Wno-enum-compare-conditional",
+        "-Wno-missing-field-initializers",
+        "-Wno-shift-negative-value",
+        "-Wno-enum-enum-conversion",
+        "-Wno-unused-parameter",
+        "-Iarch/x86/realmode",
+        "-I$(GENDIR)/arch/x86/realmode",
+        "-DKBUILD_MODFILE=\\\"arch/x86/realmode/init\\\"",
+        "-DKBUILD_BASENAME=\\\"init\\\"",
+        "-DKBUILD_MODNAME=\\\"init\\\"",
+        "-D__KBUILD_MODNAME=init",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":realmode_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        ":arch_x86_realmode_built_in_rmpiggy",
+        "//arch/x86:x86_headers",
+    ],
+    additional_compiler_inputs = [
+        "//arch/x86/realmode/rm:realmode.bin",
+        "//arch/x86/realmode/rm:realmode.relocs",
+    ],
+)
+
+# TUs of `arch_x86_realmode_built-in` compiled with their own flags (see the header TODO)
+cc_library(
+    name = "arch_x86_realmode_built_in_rmpiggy",
+    srcs = ["rmpiggy.S"],
+    copts = [
+        "-nostdinc",
+        "-Iarch/x86/include",
+        "-I$(GENDIR)/arch/x86/include",
+        "-Iarch/x86/include/generated",
+        "-I$(GENDIR)/arch/x86/include/generated",
+        "-Iinclude",
+        "-I$(GENDIR)/include",
+        "-Iarch/x86/include/uapi",
+        "-Iarch/x86/include/generated/uapi",
+        "-I$(GENDIR)/arch/x86/include/generated/uapi",
+        "-Iinclude/uapi",
+        "-Iinclude/generated/uapi",
+        "-I$(GENDIR)/include/generated/uapi",
+        "-include",
+        "include/linux/compiler-version.h",
+        "-include",
+        "include/linux/kconfig.h",
+        "-D__KERNEL__",
+        "--target=x86_64-linux-gnu",
+        "-fintegrated-as",
+        "-Werror=unknown-warning-option",
+        "-Werror=ignored-optimization-argument",
+        "-Werror=option-ignored",
+        "-Werror=unused-command-line-argument",
+        "-D__ASSEMBLY__",
+        "-fno-PIE",
+        "-m64",
+        "-Iarch/x86/realmode",
+        "-I$(GENDIR)/arch/x86/realmode",
+        "-DKBUILD_MODFILE=\\\"arch/x86/realmode/rmpiggy\\\"",
+        "-DKBUILD_MODNAME=\\\"rmpiggy\\\"",
+        "-D__KBUILD_MODNAME=rmpiggy",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":realmode_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//arch/x86:x86_headers",
+    ],
+    alwayslink = True,
+    additional_compiler_inputs = [
+        "//arch/x86/realmode/rm:realmode.bin",
+        "//arch/x86/realmode/rm:realmode.relocs",
+    ],
+)

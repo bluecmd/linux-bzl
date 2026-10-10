@@ -1,0 +1,202 @@
+# block: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   block_built-in (static_library) -> cc_library block_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+    "Kconfig.iosched",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "block_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `block_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "block_built_in_objects",
+    lib = ":block_built_in",
+    objects = [
+        "badblocks.o",
+        "bdev.o",
+        "bio.o",
+        "blk-core.o",
+        "blk-flush.o",
+        "blk-ia-ranges.o",
+        "blk-ioc.o",
+        "blk-lib.o",
+        "blk-map.o",
+        "blk-merge.o",
+        "blk-mq-cpumap.o",
+        "blk-mq-dma.o",
+        "blk-mq-sched.o",
+        "blk-mq-sysfs.o",
+        "blk-mq-tag.o",
+        "blk-mq.o",
+        "blk-rq-qos.o",
+        "blk-settings.o",
+        "blk-stat.o",
+        "blk-sysfs.o",
+        "blk-timeout.o",
+        "disk-events.o",
+        "early-lookup.o",
+        "elevator.o",
+        "fops.o",
+        "genhd.o",
+        "ioctl.o",
+        "ioprio.o",
+        "kyber-iosched.o",
+        "mq-deadline.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "block_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "bdev.o",
+        "fops.o",
+        "bio.o",
+        "elevator.o",
+        "blk-core.o",
+        "blk-sysfs.o",
+        "blk-flush.o",
+        "blk-settings.o",
+        "blk-ioc.o",
+        "blk-map.o",
+        "blk-merge.o",
+        "blk-timeout.o",
+        "blk-lib.o",
+        "blk-mq.o",
+        "blk-mq-tag.o",
+        "blk-mq-dma.o",
+        "blk-stat.o",
+        "blk-mq-sysfs.o",
+        "blk-mq-cpumap.o",
+        "blk-mq-sched.o",
+        "ioctl.o",
+        "genhd.o",
+        "ioprio.o",
+        "badblocks.o",
+        "//block/partitions:block_partitions_built_in_a",
+        "blk-rq-qos.o",
+        "disk-events.o",
+        "blk-ia-ranges.o",
+        "early-lookup.o",
+        "mq-deadline.o",
+        "kyber-iosched.o",
+    ],
+    srcs = [
+        "bdev.o",
+        "fops.o",
+        "bio.o",
+        "elevator.o",
+        "blk-core.o",
+        "blk-sysfs.o",
+        "blk-flush.o",
+        "blk-settings.o",
+        "blk-ioc.o",
+        "blk-map.o",
+        "blk-merge.o",
+        "blk-timeout.o",
+        "blk-lib.o",
+        "blk-mq.o",
+        "blk-mq-tag.o",
+        "blk-mq-dma.o",
+        "blk-stat.o",
+        "blk-mq-sysfs.o",
+        "blk-mq-cpumap.o",
+        "blk-mq-sched.o",
+        "ioctl.o",
+        "genhd.o",
+        "ioprio.o",
+        "badblocks.o",
+        "//block/partitions:block_partitions_built_in_a",
+        "blk-rq-qos.o",
+        "disk-events.o",
+        "blk-ia-ranges.o",
+        "early-lookup.o",
+        "mq-deadline.o",
+        "kyber-iosched.o",
+        "//block/partitions:efi.o",
+        "//block/partitions:msdos.o",
+        "//block/partitions:core.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `block_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "block_built_in",
+    srcs = [
+        "badblocks.c",
+        "bdev.c",
+        "bio.c",
+        "blk-core.c",
+        "blk-flush.c",
+        "blk-ia-ranges.c",
+        "blk-ioc.c",
+        "blk-lib.c",
+        "blk-map.c",
+        "blk-merge.c",
+        "blk-mq-cpumap.c",
+        "blk-mq-dma.c",
+        "blk-mq-sched.c",
+        "blk-mq-sysfs.c",
+        "blk-mq-tag.c",
+        "blk-mq.c",
+        "blk-rq-qos.c",
+        "blk-settings.c",
+        "blk-stat.c",
+        "blk-sysfs.c",
+        "blk-timeout.c",
+        "disk-events.c",
+        "early-lookup.c",
+        "elevator.c",
+        "fops.c",
+        "genhd.c",
+        "ioctl.c",
+        "ioprio.c",
+        "kyber-iosched.c",
+        "mq-deadline.c",
+    ],
+    copts = [
+        "-Iblock",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        "//drivers/s390/block:block_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+)

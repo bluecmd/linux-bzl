@@ -1,0 +1,85 @@
+# drivers/net/wireless: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "wireless_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_net_wireless_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "//drivers/net/wireless/admtek:drivers_net_wireless_admtek_built_in_a",
+        "//drivers/net/wireless/ath:drivers_net_wireless_ath_built_in_a",
+        "//drivers/net/wireless/atmel:drivers_net_wireless_atmel_built_in_a",
+        "//drivers/net/wireless/broadcom:drivers_net_wireless_broadcom_built_in_a",
+        "//drivers/net/wireless/intel:drivers_net_wireless_intel_built_in_a",
+        "//drivers/net/wireless/intersil:drivers_net_wireless_intersil_built_in_a",
+        "//drivers/net/wireless/marvell:drivers_net_wireless_marvell_built_in_a",
+        "//drivers/net/wireless/mediatek:drivers_net_wireless_mediatek_built_in_a",
+        "//drivers/net/wireless/microchip:drivers_net_wireless_microchip_built_in_a",
+        "//drivers/net/wireless/purelifi:drivers_net_wireless_purelifi_built_in_a",
+        "//drivers/net/wireless/quantenna:drivers_net_wireless_quantenna_built_in_a",
+        "//drivers/net/wireless/ralink:drivers_net_wireless_ralink_built_in_a",
+        "//drivers/net/wireless/realtek:drivers_net_wireless_realtek_built_in_a",
+        "//drivers/net/wireless/rsi:drivers_net_wireless_rsi_built_in_a",
+        "//drivers/net/wireless/silabs:drivers_net_wireless_silabs_built_in_a",
+        "//drivers/net/wireless/st:drivers_net_wireless_st_built_in_a",
+        "//drivers/net/wireless/ti:drivers_net_wireless_ti_built_in_a",
+        "//drivers/net/wireless/zydas:drivers_net_wireless_zydas_built_in_a",
+        "//drivers/net/wireless/virtual:drivers_net_wireless_virtual_built_in_a",
+    ],
+    srcs = [
+        "//drivers/net/wireless/admtek:drivers_net_wireless_admtek_built_in_a",
+        "//drivers/net/wireless/ath:drivers_net_wireless_ath_built_in_a",
+        "//drivers/net/wireless/atmel:drivers_net_wireless_atmel_built_in_a",
+        "//drivers/net/wireless/broadcom:drivers_net_wireless_broadcom_built_in_a",
+        "//drivers/net/wireless/intel:drivers_net_wireless_intel_built_in_a",
+        "//drivers/net/wireless/intersil:drivers_net_wireless_intersil_built_in_a",
+        "//drivers/net/wireless/marvell:drivers_net_wireless_marvell_built_in_a",
+        "//drivers/net/wireless/mediatek:drivers_net_wireless_mediatek_built_in_a",
+        "//drivers/net/wireless/microchip:drivers_net_wireless_microchip_built_in_a",
+        "//drivers/net/wireless/purelifi:drivers_net_wireless_purelifi_built_in_a",
+        "//drivers/net/wireless/quantenna:drivers_net_wireless_quantenna_built_in_a",
+        "//drivers/net/wireless/ralink:drivers_net_wireless_ralink_built_in_a",
+        "//drivers/net/wireless/realtek:drivers_net_wireless_realtek_built_in_a",
+        "//drivers/net/wireless/rsi:drivers_net_wireless_rsi_built_in_a",
+        "//drivers/net/wireless/silabs:drivers_net_wireless_silabs_built_in_a",
+        "//drivers/net/wireless/st:drivers_net_wireless_st_built_in_a",
+        "//drivers/net/wireless/ti:drivers_net_wireless_ti_built_in_a",
+        "//drivers/net/wireless/zydas:drivers_net_wireless_zydas_built_in_a",
+        "//drivers/net/wireless/virtual:drivers_net_wireless_virtual_built_in_a",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

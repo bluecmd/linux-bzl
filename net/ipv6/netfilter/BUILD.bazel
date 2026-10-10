@@ -1,0 +1,8 @@
+# net/ipv6/netfilter: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "Kconfig",
+])
+

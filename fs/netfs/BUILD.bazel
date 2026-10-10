@@ -1,0 +1,148 @@
+# fs/netfs: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   fs_netfs_built-in (static_library) -> cc_library fs_netfs_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "netfs_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `fs_netfs_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "fs_netfs_built_in_objects",
+    lib = ":fs_netfs_built_in",
+    objects = [
+        "buffered_read.o",
+        "buffered_write.o",
+        "direct_read.o",
+        "direct_write.o",
+        "iterator.o",
+        "locking.o",
+        "main.o",
+        "misc.o",
+        "objects.o",
+        "read_collect.o",
+        "read_pgpriv2.o",
+        "read_retry.o",
+        "read_single.o",
+        "rolling_buffer.o",
+        "write_collect.o",
+        "write_issue.o",
+        "write_retry.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "fs_netfs_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "buffered_read.o",
+        "buffered_write.o",
+        "direct_read.o",
+        "direct_write.o",
+        "iterator.o",
+        "locking.o",
+        "main.o",
+        "misc.o",
+        "objects.o",
+        "read_collect.o",
+        "read_pgpriv2.o",
+        "read_retry.o",
+        "read_single.o",
+        "rolling_buffer.o",
+        "write_collect.o",
+        "write_issue.o",
+        "write_retry.o",
+    ],
+    srcs = [
+        "buffered_read.o",
+        "buffered_write.o",
+        "direct_read.o",
+        "direct_write.o",
+        "iterator.o",
+        "locking.o",
+        "main.o",
+        "misc.o",
+        "objects.o",
+        "read_collect.o",
+        "read_pgpriv2.o",
+        "read_retry.o",
+        "read_single.o",
+        "rolling_buffer.o",
+        "write_collect.o",
+        "write_issue.o",
+        "write_retry.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `fs_netfs_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "fs_netfs_built_in",
+    srcs = [
+        "buffered_read.c",
+        "buffered_write.c",
+        "direct_read.c",
+        "direct_write.c",
+        "iterator.c",
+        "locking.c",
+        "main.c",
+        "misc.c",
+        "objects.c",
+        "read_collect.c",
+        "read_pgpriv2.c",
+        "read_retry.c",
+        "read_single.c",
+        "rolling_buffer.c",
+        "write_collect.c",
+        "write_issue.c",
+        "write_retry.c",
+    ],
+    copts = [
+        "-Ifs/netfs",
+        "-DKBUILD_MODFILE=\\\"fs/netfs/netfs\\\"",
+        "-DKBUILD_MODNAME=\\\"netfs\\\"",
+        "-D__KBUILD_MODNAME=netfs",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":netfs_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//fs:fs_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "module",
+)

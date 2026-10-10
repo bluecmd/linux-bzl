@@ -1,0 +1,101 @@
+# drivers/net: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_net_built-in (static_library) -> cc_library drivers_net_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "net_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_net_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_net_built_in_objects",
+    lib = ":drivers_net_built_in",
+    objects = [
+        "loopback.o",
+        "net_failover.o",
+        "virtio_net.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_net_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "loopback.o",
+        "//drivers/net/phy:drivers_net_phy_built_in_a",
+        "//drivers/net/pse-pd:drivers_net_pse_pd_built_in_a",
+        "//drivers/net/mdio:drivers_net_mdio_built_in_a",
+        "//drivers/net/pcs:drivers_net_pcs_built_in_a",
+        "virtio_net.o",
+        "//drivers/net/ethernet:drivers_net_ethernet_built_in_a",
+        "//drivers/net/wireless:drivers_net_wireless_built_in_a",
+        "net_failover.o",
+    ],
+    srcs = [
+        "loopback.o",
+        "//drivers/net/phy:drivers_net_phy_built_in_a",
+        "//drivers/net/pse-pd:drivers_net_pse_pd_built_in_a",
+        "//drivers/net/mdio:drivers_net_mdio_built_in_a",
+        "//drivers/net/pcs:drivers_net_pcs_built_in_a",
+        "virtio_net.o",
+        "//drivers/net/ethernet:drivers_net_ethernet_built_in_a",
+        "//drivers/net/wireless:drivers_net_wireless_built_in_a",
+        "net_failover.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `drivers_net_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "drivers_net_built_in",
+    srcs = [
+        "loopback.c",
+        "net_failover.c",
+        "virtio_net.c",
+    ],
+    copts = [
+        "-Idrivers/net",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        "//net:net_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+)

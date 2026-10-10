@@ -1,0 +1,102 @@
+# drivers/char: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_char_built-in (static_library) -> cc_library drivers_char_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "char_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_char_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_char_built_in_objects",
+    lib = ":drivers_char_built_in",
+    objects = [
+        "mem.o",
+        "misc.o",
+        "random.o",
+        "virtio_console.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_char_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "mem.o",
+        "random.o",
+        "misc.o",
+        "virtio_console.o",
+        "//drivers/char/hw_random:drivers_char_hw_random_built_in_a",
+        "//drivers/char/agp:drivers_char_agp_built_in_a",
+    ],
+    srcs = [
+        "mem.o",
+        "random.o",
+        "misc.o",
+        "virtio_console.o",
+        "//drivers/char/hw_random:drivers_char_hw_random_built_in_a",
+        "//drivers/char/agp:drivers_char_agp_built_in_a",
+        "//drivers/char/hw_random:virtio-rng.o",
+        "//drivers/char/hw_random:via-rng.o",
+        "//drivers/char/hw_random:amd-rng.o",
+        "//drivers/char/hw_random:intel-rng.o",
+        "//drivers/char/hw_random:core.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `drivers_char_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "drivers_char_built_in",
+    srcs = [
+        "mem.c",
+        "misc.c",
+        "random.c",
+        "virtio_console.c",
+    ],
+    copts = [
+        "-Idrivers/char",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        "//drivers/sbus/char:char_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+)

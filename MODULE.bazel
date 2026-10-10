@@ -1,0 +1,125 @@
+module(name = "linux_bzl", version = "0.1.0")
+
+bazel_dep(name = "rules_cc", version = "0.2.25")
+bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
+bazel_dep(name = "zlib", version = "1.3.1.bcr.3")
+bazel_dep(name = "rules_m4", version = "0.3.bcr.1")
+bazel_dep(name = "rules_flex", version = "0.4.1")
+bazel_dep(name = "rules_bison", version = "0.4.bcr.1")
+bazel_dep(name = "toolchains_llvm", version = "1.11.0")
+
+# The one compiler on both sides: the reference build is `make LLVM=1` with
+# this release; Bazel's host (exec) cc toolchain is the same release, and the
+# kernel cc toolchain (//toolchain) points at the same binaries.
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(llvm_version = "22.1.8")
+use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
+
+# The kernel cc toolchain: a repository linking that distribution's tools
+# (package-relative tool_paths, so genrules get $(NM)/$(LD)/$(OBJCOPY)); its
+# compile line is //toolchain:kernel_flags.bzl, written by any2bazel's
+# probe_kernel.py --common from the recorded reference build.
+kernel_llvm_toolchain = use_repo_rule("//bazel/rules:kernel_llvm_toolchain.bzl", "kernel_llvm_toolchain")
+kernel_llvm_toolchain(
+    name = "kernel_llvm",
+    clang = "@llvm_toolchain_llvm//:bin/clang",
+    config_bzl = "//bazel/rules:kernel_cc_toolchain_config.bzl",
+    files = [
+        "@llvm_toolchain_llvm//:bin",
+        "@llvm_toolchain_llvm//:include",
+        "@llvm_toolchain_llvm//:lib",
+    ],
+    flags_bzl = "//toolchain:kernel_flags.bzl",
+    include_roots_symbol = "KERNEL_INCLUDE_ROOTS",
+    # The kernel's own TUs are -nostdinc (KERNEL_INCLUDE_ROOTS above is all
+    # they search); the host-support code this toolchain also compiles (the
+    # objtool support library) reads the compiler's builtins and the host
+    # system headers, as the reference build did. The compiler's own resource
+    # dirs it declares itself (kernel_llvm_toolchain derives them from the
+    # compiler's real path); the system headers are spelled the way
+    # toolchains_llvm declares them.
+    builtin_include_directories = [
+        "/usr/include",
+        "/usr/local/include",
+    ],
+    include_dirs_symbol = "",
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        "//platforms:kernel",
+    ],
+    target_cpu = "x86_64",
+    target_system_name = "x86_64-linux-gnu",
+)
+
+# the kernel toolchain first: it requires //platforms:kernel, so it is only
+# picked for the kernel platform; the plain LLVM toolchain serves the exec platform
+register_toolchains("@kernel_llvm//:toolchain", "@llvm_toolchain//:all")
+
+# The test initrd's packages (bazel/image): Alpine v3.22, pinned by hash.
+http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+http_file(
+    name = "apk_busybox_static",
+    sha256 = "488ad6efd04b5a722719e79f8e0dcc2c24afd6758867af3ce41b04839e60c74b",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/busybox-static-1.37.0-r20.apk"],
+)
+http_file(
+    name = "apk_dropbear",
+    sha256 = "e9efcc9c7b7902596596c41fb6fa57278d943025c1f3c8926b37a11422466955",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/dropbear-2025.88-r1.apk"],
+)
+http_file(
+    name = "apk_musl",
+    sha256 = "4990a5e0ba312e478f94cfe431a70efef1538004eb361c8ae424516848be45bb",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/musl-1.2.5-r12.apk"],
+)
+http_file(
+    name = "apk_skalibs",
+    sha256 = "1439bce812453c4b4a60fa579aaf8158cbae531427518629ce1afbfb0f54f64c",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/skalibs-2.14.4.0-r0.apk"],
+)
+http_file(
+    name = "apk_skalibs_libs",
+    sha256 = "b00cb52d7c9c1309b2c2a11b654162ebabd728cf61898326aeffb39f2a27240a",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/skalibs-libs-2.14.4.0-r0.apk"],
+)
+http_file(
+    name = "apk_utmps",
+    sha256 = "87312b3ddee6455d4344852f342da9ef081f22a5b7dee474b85069b04e94f4e4",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/utmps-0.1.3.1-r0.apk"],
+)
+http_file(
+    name = "apk_utmps_libs",
+    sha256 = "3d1b9714c720828355c2b231fa188791f2b3e5dc26999681765d5adbbf951989",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/utmps-libs-0.1.3.1-r0.apk"],
+)
+http_file(
+    name = "apk_zlib",
+    sha256 = "1f3d5f463f490dad3a68097376711bfe5e8156e9e8daff3070513aa4378cdeca",
+    urls = ["https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/zlib-1.3.2-r0.apk"],
+)
+
+# libelf for the objtool host tool: the reference build takes it from the
+# machine (-lelf, <gelf.h>); here it is fetched, pinned, and built by the
+# same exec toolchain — only the libelf subset is built (see
+# bazel/third_party/elfutils.BUILD.bazel).
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "elfutils",
+    build_file = "//bazel/third_party:elfutils.BUILD.bazel",
+    sha256 = "09e2ff033d39baa8b388a2d7fbc5390bfde99ae3b7c67c7daaf7433fbcf0f01e",
+    strip_prefix = "elfutils-0.194",
+    urls = ["https://sourceware.org/elfutils/ftp/0.194/elfutils-0.194.tar.bz2"],
+)
+
+# bc for the kernel's timeconst.h generator: the reference took it from the
+# machine's PATH; here the pinned source builds it (with upstream's own
+# two-stage libmath bootstrap -- see bazel/third_party/bc.BUILD.bazel).
+http_archive(
+    name = "bc",
+    build_file = "//bazel/third_party:bc.BUILD.bazel",
+    sha256 = "62adfca89b0a1c0164c2cdca59ca210c1d44c3ffc46daf9931cf4942664cb02a",
+    strip_prefix = "bc-1.07.1",
+    urls = ["https://ftp.gnu.org/gnu/bc/bc-1.07.1.tar.gz"],
+)

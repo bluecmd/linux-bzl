@@ -1,0 +1,109 @@
+# lib/math: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   lib_math_built-in (static_library) -> cc_library lib_math_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "math_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `lib_math_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "lib_math_built_in_objects",
+    lib = ":lib_math_built_in",
+    objects = [
+        "div64.o",
+        "gcd.o",
+        "int_log.o",
+        "int_pow.o",
+        "int_sqrt.o",
+        "lcm.o",
+        "rational.o",
+        "reciprocal_div.o",
+    ],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "lib_math_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "div64.o",
+        "gcd.o",
+        "lcm.o",
+        "int_log.o",
+        "int_pow.o",
+        "int_sqrt.o",
+        "reciprocal_div.o",
+        "rational.o",
+    ],
+    srcs = [
+        "div64.o",
+        "gcd.o",
+        "lcm.o",
+        "int_log.o",
+        "int_pow.o",
+        "int_sqrt.o",
+        "reciprocal_div.o",
+        "rational.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `lib_math_built-in` (static library)
+# sources with flags of their own (a define or two each): per_source_copts
+# per-source KBUILD_* defines computed from the sources (kbuild); the map, when it remains, is what the arithmetic cannot express
+cc_per_source_library(
+    name = "lib_math_built_in",
+    srcs = [
+        "div64.c",
+        "gcd.c",
+        "int_log.c",
+        "int_pow.c",
+        "int_sqrt.c",
+        "lcm.c",
+        "rational.c",
+        "reciprocal_div.c",
+    ],
+    copts = [
+        "-Ilib/math",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":math_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//lib:lib_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+)

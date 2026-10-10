@@ -1,0 +1,2 @@
+# no targets here: this package carries the handwritten BUILD files that
+# Bazel installs into fetched third-party sources (build_file = ...)

@@ -1,0 +1,71 @@
+# lib/lzo: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   lib_lzo_built-in (static_library) -> cc_library lib_lzo_built_in
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "lzo_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], exclude = ["lzo1x_decompress_safe.c"], allow_empty = True),
+    textual_hdrs = ["lzo1x_decompress_safe.c"],
+)
+
+# the object(s) of `lib_lzo_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "lib_lzo_built_in_objects",
+    lib = ":lib_lzo_built_in",
+    objects = ["lzo1x_decompress_safe.o"],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "lib_lzo_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = ["lzo1x_decompress_safe.o"],
+    srcs = ["lzo1x_decompress_safe.o"],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `lib_lzo_built-in` (static library)
+cc_library(
+    name = "lib_lzo_built_in",
+    srcs = ["lzo1x_decompress_safe.c"],
+    copts = [
+        "-Ilib/lzo",
+        "-DKBUILD_MODFILE=\\\"lib/lzo/lzo_decompress\\\"",
+        "-DKBUILD_BASENAME=\\\"lzo1x_decompress_safe\\\"",
+        "-DKBUILD_MODNAME=\\\"lzo_decompress\\\"",
+        "-D__KBUILD_MODNAME=lzo_decompress",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":lzo_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//lib:lib_headers",
+    ],
+    features = ["kernel_compile_flags"],
+)

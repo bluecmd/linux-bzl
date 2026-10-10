@@ -1,0 +1,85 @@
+# drivers/gpu/drm: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+    "Kconfig.debug",
+    "amd/acp/Kconfig",
+    "amd/amdkfd/Kconfig",
+    "nouveau/Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "drm_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_gpu_drm_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "//drivers/gpu/drm/arm:drivers_gpu_drm_arm_built_in_a",
+        "//drivers/gpu/drm/clients:drivers_gpu_drm_clients_built_in_a",
+        "//drivers/gpu/drm/display:drivers_gpu_drm_display_built_in_a",
+        "//drivers/gpu/drm/renesas:drivers_gpu_drm_renesas_built_in_a",
+        "//drivers/gpu/drm/omapdrm:drivers_gpu_drm_omapdrm_built_in_a",
+        "//drivers/gpu/drm/tilcdc:drivers_gpu_drm_tilcdc_built_in_a",
+        "//drivers/gpu/drm/imx:drivers_gpu_drm_imx_built_in_a",
+        "//drivers/gpu/drm/panel:drivers_gpu_drm_panel_built_in_a",
+        "//drivers/gpu/drm/bridge:drivers_gpu_drm_bridge_built_in_a",
+        "//drivers/gpu/drm/hisilicon:drivers_gpu_drm_hisilicon_built_in_a",
+        "//drivers/gpu/drm/mxsfb:drivers_gpu_drm_mxsfb_built_in_a",
+        "//drivers/gpu/drm/sysfb:drivers_gpu_drm_sysfb_built_in_a",
+        "//drivers/gpu/drm/tiny:drivers_gpu_drm_tiny_built_in_a",
+        "//drivers/gpu/drm/xlnx:drivers_gpu_drm_xlnx_built_in_a",
+        "//drivers/gpu/drm/gud:drivers_gpu_drm_gud_built_in_a",
+        "//drivers/gpu/drm/sitronix:drivers_gpu_drm_sitronix_built_in_a",
+        "//drivers/gpu/drm/solomon:drivers_gpu_drm_solomon_built_in_a",
+    ],
+    srcs = [
+        "//drivers/gpu/drm/arm:drivers_gpu_drm_arm_built_in_a",
+        "//drivers/gpu/drm/clients:drivers_gpu_drm_clients_built_in_a",
+        "//drivers/gpu/drm/display:drivers_gpu_drm_display_built_in_a",
+        "//drivers/gpu/drm/renesas:drivers_gpu_drm_renesas_built_in_a",
+        "//drivers/gpu/drm/omapdrm:drivers_gpu_drm_omapdrm_built_in_a",
+        "//drivers/gpu/drm/tilcdc:drivers_gpu_drm_tilcdc_built_in_a",
+        "//drivers/gpu/drm/imx:drivers_gpu_drm_imx_built_in_a",
+        "//drivers/gpu/drm/panel:drivers_gpu_drm_panel_built_in_a",
+        "//drivers/gpu/drm/bridge:drivers_gpu_drm_bridge_built_in_a",
+        "//drivers/gpu/drm/hisilicon:drivers_gpu_drm_hisilicon_built_in_a",
+        "//drivers/gpu/drm/mxsfb:drivers_gpu_drm_mxsfb_built_in_a",
+        "//drivers/gpu/drm/sysfb:drivers_gpu_drm_sysfb_built_in_a",
+        "//drivers/gpu/drm/tiny:drivers_gpu_drm_tiny_built_in_a",
+        "//drivers/gpu/drm/xlnx:drivers_gpu_drm_xlnx_built_in_a",
+        "//drivers/gpu/drm/gud:drivers_gpu_drm_gud_built_in_a",
+        "//drivers/gpu/drm/sitronix:drivers_gpu_drm_sitronix_built_in_a",
+        "//drivers/gpu/drm/solomon:drivers_gpu_drm_solomon_built_in_a",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
