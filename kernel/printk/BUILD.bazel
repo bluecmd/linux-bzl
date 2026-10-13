@@ -1,0 +1,81 @@
+# kernel/printk: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   kernel_printk_built-in (static_library) -> cc_library kernel_printk_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "printk_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `kernel_printk_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "kernel_printk_built_in_objects",
+    lib = ":kernel_printk_built_in",
+    objects = [
+        "nbcon.o",
+        "printk.o",
+        "printk_ringbuffer.o",
+        "printk_safe.o",
+        "sysctl.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "kernel_printk_built_in",
+    srcs = [
+        "nbcon.c",
+        "printk.c",
+        "printk_ringbuffer.c",
+        "printk_safe.c",
+        "sysctl.c",
+    ],
+    copts = [
+        "-Ikernel/printk",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":printk_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//kernel:kernel_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    kbuild_modules = {
+        "printk_support": [
+            "printk_ringbuffer.c",
+            "sysctl.c",
+        ],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "printk.o",
+        "printk_safe.o",
+        "nbcon.o",
+        "printk_ringbuffer.o",
+        "sysctl.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

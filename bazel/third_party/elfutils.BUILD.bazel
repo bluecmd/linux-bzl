@@ -1,0 +1,113 @@
+# BUILD file installed into the fetched elfutils sources (MODULE.bazel).
+# Only the libelf subset is built: the reference build links its objtool
+# host tool against the machine's libelf (-lelf, <gelf.h>); here that
+# library comes from the fetched archive instead, so nothing is taken
+# from the host. The sources build as-is with a 15-line config.h (the
+# upstream configure would generate one; the defines below are what the
+# libelf subset reads on a glibc host, verified against 0.194).
+#
+# Upstream builds the elf32_*.c files both as their own translation units
+# and as text includes of the elf64_*.c ones (elf64_checksum.c begins
+# `#include "elf32_checksum.c"`); the two live as separate targets so the
+# same file can be a src here and a textual header there -- Bazel's
+# sandbox only materializes declared inputs, a quote include needs its
+# file declared.
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+# What libelf's sources #include <config.h> for. _GNU_SOURCE comes as a
+# define; eu-config.h (in lib/) is included at the end, the way the
+# upstream configure output does it.
+write_file(
+    name = "config_gen",
+    out = "gen/config.h",
+    content = [
+        "#define HAVE_CONFIG_H 1",
+        "#define HAVE_ERROR_H 1",
+        "#define HAVE_ERR_H 1",
+        "#define HAVE_MREMAP 1",
+        "#define HAVE_GCC_STRUCT 1",
+        "#define HAVE_FALLTHROUGH 1",
+        "#define HAVE_DECL_MEMPCPY 1",
+        "#define HAVE_DECL_MEMRCHR 1",
+        "#define HAVE_DECL_RAWMEMCHR 1",
+        "#define HAVE_DECL_POWEROF2 1",
+        "#define HAVE_DECL_REALLOCARRAY 1",
+        "#define PACKAGE \"elfutils\"",
+        "#define PACKAGE_NAME \"elfutils\"",
+        "#define PACKAGE_VERSION \"0.194\"",
+        "#define VERSION \"0.194\"",
+        "#include <eu-config.h>",
+    ],
+)
+
+# the elf32 half of the elf32/elf64 pairs: compiled as their own TUs and
+# quoted-included (as text) by the elf64 halves in :libelf
+cc_library(
+    name = "elf32_tus",
+    srcs = [
+        "libelf/elf32_checksum.c",
+        "libelf/elf32_fsize.c",
+        "libelf/elf32_getchdr.c",
+        "libelf/elf32_getehdr.c",
+        "libelf/elf32_getphdr.c",
+        "libelf/elf32_getshdr.c",
+        "libelf/elf32_newehdr.c",
+        "libelf/elf32_newphdr.c",
+        "libelf/elf32_offscn.c",
+        "libelf/elf32_updatefile.c",
+        "libelf/elf32_updatenull.c",
+        "libelf/elf32_xlatetof.c",
+        "libelf/elf32_xlatetom.c",
+    ],
+    hdrs = glob(["libelf/*.h", "lib/*.h"]) + [":config_gen"],
+    includes = ["libelf", "lib", "gen"],
+    # -D_GNU_SOURCE as a copt, not a define: defines propagate to every
+    # consumer (objtool #defines _GNU_SOURCE itself and -Werror rejects the
+    # redefinition); the elfutils sources just need it on their own line
+    copts = ["-DHAVE_CONFIG_H", "-D_GNU_SOURCE"],
+)
+
+cc_library(
+    name = "libelf",
+    srcs = glob(
+        ["libelf/*.c"] + [
+            "lib/" + f
+            for f in [
+                "xasprintf.c",
+                "xstrdup.c",
+                "xstrndup.c",
+                "xmalloc.c",
+                "crc32_file.c",
+                "eu-search.c",
+                "error.c",
+            ]
+        ],
+    ),
+    hdrs = glob(["libelf/*.h", "lib/*.h"], allow_empty = False) + [
+        ":config_gen",
+        # included as text: libelf_next_prime.c and libelf_crc32.c begin
+        # with `#include "../lib/next_prime.c"` / `"../lib/crc32.c"`
+        "lib/next_prime.c",
+        "lib/crc32.c",
+    ],
+    textual_hdrs = [
+        "libelf/elf32_checksum.c",
+        "libelf/elf32_fsize.c",
+        "libelf/elf32_getchdr.c",
+        "libelf/elf32_getehdr.c",
+        "libelf/elf32_getphdr.c",
+        "libelf/elf32_getshdr.c",
+        "libelf/elf32_newehdr.c",
+        "libelf/elf32_newphdr.c",
+        "libelf/elf32_offscn.c",
+        "libelf/elf32_updatefile.c",
+        "libelf/elf32_updatenull.c",
+        "libelf/elf32_xlatetof.c",
+        "libelf/elf32_xlatetom.c",
+    ],
+    includes = ["libelf", "lib", "gen"],
+    copts = ["-DHAVE_CONFIG_H", "-D_GNU_SOURCE"],
+    deps = ["@zlib//:z", ":elf32_tus"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,79 @@
+# drivers/net: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_net_built-in (static_library) -> cc_library drivers_net_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "net_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_net_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_net_built_in_objects",
+    lib = ":drivers_net_built_in",
+    objects = [
+        "loopback.o",
+        "net_failover.o",
+        "virtio_net.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "drivers_net_built_in",
+    srcs = [
+        "loopback.c",
+        "net_failover.c",
+        "virtio_net.c",
+    ],
+    copts = [
+        "-Idrivers/net",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        "//net:net_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "loopback.o",
+        "//drivers/net/phy:drivers_net_phy_built_in_a",
+        "//drivers/net/pse-pd:drivers_net_pse_pd_built_in_a",
+        "//drivers/net/mdio:drivers_net_mdio_built_in_a",
+        "//drivers/net/pcs:drivers_net_pcs_built_in_a",
+        "virtio_net.o",
+        "//drivers/net/ethernet:drivers_net_ethernet_built_in_a",
+        "//drivers/net/wireless:drivers_net_wireless_built_in_a",
+        "net_failover.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

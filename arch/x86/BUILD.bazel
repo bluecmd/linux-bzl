@@ -1,0 +1,800 @@
+# arch/x86: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:kbuild_env.bzl", "COMMON_ENV")
+load("//bazel/rules:tool_stdout.bzl", "tool_stdout")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("//bazel/rules:wrap_header.bzl", "wrap_header")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+    "Kconfig.assembler",
+    "Kconfig.cpu",
+    "Kconfig.cpufeatures",
+    "Kconfig.debug",
+    "include/asm/alternative.h",
+    "include/asm/apicdef.h",
+    "include/asm/arch_hweight.h",
+    "include/asm/asm-offsets.h",
+    "include/asm/asm.h",
+    "include/asm/atomic.h",
+    "include/asm/atomic64_64.h",
+    "include/asm/barrier.h",
+    "include/asm/bitops.h",
+    "include/asm/boot.h",
+    "include/asm/bug.h",
+    "include/asm/cache.h",
+    "include/asm/cacheflush.h",
+    "include/asm/cfi.h",
+    "include/asm/clocksource.h",
+    "include/asm/cmpxchg.h",
+    "include/asm/cmpxchg_64.h",
+    "include/asm/coco.h",
+    "include/asm/compat.h",
+    "include/asm/cpu_entry_area.h",
+    "include/asm/cpufeature.h",
+    "include/asm/cpufeatures.h",
+    "include/asm/cpuid/leaf_types.h",
+    "include/asm/cpuid/types.h",
+    "include/asm/cpumask.h",
+    "include/asm/current.h",
+    "include/asm/debugreg.h",
+    "include/asm/desc.h",
+    "include/asm/desc_defs.h",
+    "include/asm/div64.h",
+    "include/asm/dma.h",
+    "include/asm/elf.h",
+    "include/asm/exec.h",
+    "include/asm/extable.h",
+    "include/asm/extable_fixup_types.h",
+    "include/asm/fixmap.h",
+    "include/asm/fpu/api.h",
+    "include/asm/fpu/types.h",
+    "include/asm/frame.h",
+    "include/asm/fsgsbase.h",
+    "include/asm/ftrace.h",
+    "include/asm/gsseg.h",
+    "include/asm/hardirq.h",
+    "include/asm/hw_breakpoint.h",
+    "include/asm/ia32.h",
+    "include/asm/ibt.h",
+    "include/asm/intel_ds.h",
+    "include/asm/invpcid.h",
+    "include/asm/io.h",
+    "include/asm/irq.h",
+    "include/asm/irq_vectors.h",
+    "include/asm/irq_work.h",
+    "include/asm/irqflags.h",
+    "include/asm/ist.h",
+    "include/asm/kaslr.h",
+    "include/asm/kdebug.h",
+    "include/asm/kexec.h",
+    "include/asm/kvm_para.h",
+    "include/asm/kvm_types.h",
+    "include/asm/linkage.h",
+    "include/asm/local.h",
+    "include/asm/math_emu.h",
+    "include/asm/mem_encrypt.h",
+    "include/asm/mmu.h",
+    "include/asm/mmu_context.h",
+    "include/asm/module.h",
+    "include/asm/msr-index.h",
+    "include/asm/msr.h",
+    "include/asm/nops.h",
+    "include/asm/nospec-branch.h",
+    "include/asm/orc_lookup.h",
+    "include/asm/orc_types.h",
+    "include/asm/page.h",
+    "include/asm/page_64.h",
+    "include/asm/page_64_types.h",
+    "include/asm/page_types.h",
+    "include/asm/paravirt-base.h",
+    "include/asm/paravirt-spinlock.h",
+    "include/asm/paravirt.h",
+    "include/asm/paravirt_types.h",
+    "include/asm/percpu.h",
+    "include/asm/percpu_types.h",
+    "include/asm/perf_event.h",
+    "include/asm/pgtable-invert.h",
+    "include/asm/pgtable.h",
+    "include/asm/pgtable_64.h",
+    "include/asm/pgtable_64_types.h",
+    "include/asm/pgtable_areas.h",
+    "include/asm/pgtable_types.h",
+    "include/asm/pkeys.h",
+    "include/asm/pkru.h",
+    "include/asm/posix_types.h",
+    "include/asm/preempt.h",
+    "include/asm/processor-flags.h",
+    "include/asm/processor.h",
+    "include/asm/proto.h",
+    "include/asm/pti.h",
+    "include/asm/ptrace.h",
+    "include/asm/qrwlock.h",
+    "include/asm/qspinlock.h",
+    "include/asm/rmwcc.h",
+    "include/asm/rqspinlock.h",
+    "include/asm/runtime-const.h",
+    "include/asm/sections.h",
+    "include/asm/segment.h",
+    "include/asm/setup_data.h",
+    "include/asm/shared/io.h",
+    "include/asm/shared/msr.h",
+    "include/asm/shared/tdx.h",
+    "include/asm/shared/tdx_errno.h",
+    "include/asm/shmparam.h",
+    "include/asm/shstk.h",
+    "include/asm/sigframe.h",
+    "include/asm/signal.h",
+    "include/asm/smap.h",
+    "include/asm/smp.h",
+    "include/asm/sparsemem.h",
+    "include/asm/special_insns.h",
+    "include/asm/spinlock.h",
+    "include/asm/spinlock_types.h",
+    "include/asm/stacktrace.h",
+    "include/asm/static_call.h",
+    "include/asm/string.h",
+    "include/asm/string_64.h",
+    "include/asm/suspend.h",
+    "include/asm/suspend_64.h",
+    "include/asm/switch_to.h",
+    "include/asm/sync_core.h",
+    "include/asm/syscall_wrapper.h",
+    "include/asm/tdx.h",
+    "include/asm/tdx_global_metadata.h",
+    "include/asm/text-patching.h",
+    "include/asm/thread_info.h",
+    "include/asm/timex.h",
+    "include/asm/tlbbatch.h",
+    "include/asm/tlbflush.h",
+    "include/asm/topology.h",
+    "include/asm/trace_clock.h",
+    "include/asm/trapnr.h",
+    "include/asm/tsc.h",
+    "include/asm/uaccess.h",
+    "include/asm/uaccess_64.h",
+    "include/asm/unistd.h",
+    "include/asm/unwind_hints.h",
+    "include/asm/user.h",
+    "include/asm/user32.h",
+    "include/asm/user_64.h",
+    "include/asm/vdso.h",
+    "include/asm/vdso/clocksource.h",
+    "include/asm/vdso/processor.h",
+    "include/asm/vdso/vsyscall.h",
+    "include/asm/vmxfeatures.h",
+    "include/asm/x86_init.h",
+    "include/uapi/asm/auxvec.h",
+    "include/uapi/asm/bitsperlong.h",
+    "include/uapi/asm/boot.h",
+    "include/uapi/asm/bootparam.h",
+    "include/uapi/asm/byteorder.h",
+    "include/uapi/asm/debugreg.h",
+    "include/uapi/asm/hw_breakpoint.h",
+    "include/uapi/asm/ist.h",
+    "include/uapi/asm/kvm_para.h",
+    "include/uapi/asm/ldt.h",
+    "include/uapi/asm/mce.h",
+    "include/uapi/asm/msr.h",
+    "include/uapi/asm/perf_regs.h",
+    "include/uapi/asm/posix_types_64.h",
+    "include/uapi/asm/processor-flags.h",
+    "include/uapi/asm/ptrace-abi.h",
+    "include/uapi/asm/ptrace.h",
+    "include/uapi/asm/sembuf.h",
+    "include/uapi/asm/setup_data.h",
+    "include/uapi/asm/sigcontext.h",
+    "include/uapi/asm/siginfo.h",
+    "include/uapi/asm/signal.h",
+    "include/uapi/asm/stat.h",
+    "include/uapi/asm/swab.h",
+    "include/uapi/asm/ucontext.h",
+    "include/uapi/asm/unistd.h",
+    "include/uapi/asm/vsyscall.h",
+    "ras/Kconfig",
+])
+
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "x86_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "arch_x86_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "//arch/x86/boot/startup:arch_x86_boot_startup_built_in_a",
+        "//arch/x86/entry:arch_x86_entry_built_in_a",
+        "//arch/x86/events:arch_x86_events_built_in_a",
+        "//arch/x86/realmode:arch_x86_realmode_built_in_a",
+        "//arch/x86/kernel:arch_x86_kernel_built_in_a",
+        "//arch/x86/mm:arch_x86_mm_built_in_a",
+        "//arch/x86/crypto:arch_x86_crypto_built_in_a",
+        "//arch/x86/platform:arch_x86_platform_built_in_a",
+        ":arch_x86_net_built_in_a",
+        "//arch/x86/virt:arch_x86_virt_built_in_a",
+    ],
+    srcs = [
+        "//arch/x86/boot/startup:arch_x86_boot_startup_built_in_a",
+        "//arch/x86/entry:arch_x86_entry_built_in_a",
+        "//arch/x86/events:arch_x86_events_built_in_a",
+        "//arch/x86/realmode:arch_x86_realmode_built_in_a",
+        "//arch/x86/kernel:arch_x86_kernel_built_in_a",
+        "//arch/x86/mm:arch_x86_mm_built_in_a",
+        "//arch/x86/crypto:arch_x86_crypto_built_in_a",
+        "//arch/x86/platform:arch_x86_platform_built_in_a",
+        ":arch_x86_net_built_in_a",
+        "//arch/x86/virt:arch_x86_virt_built_in_a",
+        "//arch/x86/boot/startup:map_kernel.pi.o",
+        "//arch/x86/boot/startup:gdt_idt.pi.o",
+        "//arch/x86/entry:thunk.o",
+        "//arch/x86/entry/vsyscall:vsyscall_emu_64.o",
+        "//arch/x86/entry/vsyscall:vsyscall_64.o",
+        "//arch/x86/entry/vdso/vdso64:vdso64-image.o",
+        "//arch/x86/entry/vdso:extable.o",
+        "//arch/x86/entry/vdso:vma.o",
+        "//arch/x86/entry:common.o",
+        "//arch/x86/entry:syscall_64.o",
+        "//arch/x86/entry:entry_64.o",
+        "//arch/x86/entry:entry.o",
+        "//arch/x86/events/zhaoxin:core.o",
+        "//arch/x86/events/intel:cstate.o",
+        "//arch/x86/events/intel:uncore_discovery.o",
+        "//arch/x86/events/intel:uncore_snbep.o",
+        "//arch/x86/events/intel:uncore_snb.o",
+        "//arch/x86/events/intel:uncore_nhmex.o",
+        "//arch/x86/events/intel:uncore.o",
+        "//arch/x86/events/intel:pt.o",
+        "//arch/x86/events/intel:p6.o",
+        "//arch/x86/events/intel:p4.o",
+        "//arch/x86/events/intel:lbr.o",
+        "//arch/x86/events/intel:knc.o",
+        "//arch/x86/events/intel:ds.o",
+        "//arch/x86/events/intel:bts.o",
+        "//arch/x86/events/intel:core.o",
+        "//arch/x86/events:msr.o",
+        "//arch/x86/events/amd:ibs.o",
+        "//arch/x86/events/amd:lbr.o",
+        "//arch/x86/events/amd:core.o",
+        "//arch/x86/events:rapl.o",
+        "//arch/x86/events:utils.o",
+        "//arch/x86/events:probe.o",
+        "//arch/x86/events:core.o",
+        "//arch/x86/realmode:rmpiggy.o",
+        "//arch/x86/realmode:init.o",
+        "//arch/x86/kernel:vsmp_64.o",
+        "//arch/x86/kernel:cet.o",
+        "//arch/x86/kernel:unwind_guess.o",
+        "//arch/x86/kernel:itmt.o",
+        "//arch/x86/kernel:perf_regs.o",
+        "//arch/x86/kernel:pvclock.o",
+        "//arch/x86/kernel:paravirt-spinlocks.o",
+        "//arch/x86/kernel:paravirt.o",
+        "//arch/x86/kernel:kvmclock.o",
+        "//arch/x86/kernel:kvm.o",
+        "//arch/x86/kernel:amd_node.o",
+        "//arch/x86/kernel:amd_nb.o",
+        "//arch/x86/kernel:hpet.o",
+        "//arch/x86/kernel:trace_clock.o",
+        "//arch/x86/kernel/apic:probe_64.o",
+        "//arch/x86/kernel/apic:apic_flat_64.o",
+        "//arch/x86/kernel/apic:x2apic_cluster.o",
+        "//arch/x86/kernel/apic:x2apic_phys.o",
+        "//arch/x86/kernel/apic:msi.o",
+        "//arch/x86/kernel/apic:io_apic.o",
+        "//arch/x86/kernel/apic:hw_nmi.o",
+        "//arch/x86/kernel/apic:init.o",
+        "//arch/x86/kernel/apic:vector.o",
+        "//arch/x86/kernel/apic:ipi.o",
+        "//arch/x86/kernel/apic:apic_noop.o",
+        "//arch/x86/kernel/apic:apic_common.o",
+        "//arch/x86/kernel/apic:apic.o",
+        "//arch/x86/kernel:mpparse.o",
+        "//arch/x86/kernel:setup_percpu.o",
+        "//arch/x86/kernel:tsc_sync.o",
+        "//arch/x86/kernel:smpboot.o",
+        "//arch/x86/kernel:smp.o",
+        "//arch/x86/kernel:early-quirks.o",
+        "//arch/x86/kernel:reboot.o",
+        "//arch/x86/kernel/cpu:mshyperv.o",
+        "//arch/x86/kernel/cpu:hypervisor.o",
+        "//arch/x86/kernel/cpu:vmware.o",
+        "//arch/x86/kernel/cpu:perfctr-watchdog.o",
+        "//arch/x86/kernel/cpu/microcode:amd.o",
+        "//arch/x86/kernel/cpu/microcode:intel.o",
+        "//arch/x86/kernel/cpu/microcode:core.o",
+        "//arch/x86/kernel/cpu:zhaoxin.o",
+        "//arch/x86/kernel/cpu:centaur.o",
+        "//arch/x86/kernel/cpu:hygon.o",
+        "//arch/x86/kernel/cpu:amd_cache_disable.o",
+        "//arch/x86/kernel/cpu:amd.o",
+        "//arch/x86/kernel/cpu:tsx.o",
+        "//arch/x86/kernel/cpu:intel.o",
+        "//arch/x86/kernel/cpu:feat_ctl.o",
+        "//arch/x86/kernel/cpu:proc.o",
+        "//arch/x86/kernel/cpu:topology.o",
+        "//arch/x86/kernel/cpu:powerflags.o",
+        "//arch/x86/kernel/cpu:capflags.o",
+        "//arch/x86/kernel/cpu:umwait.o",
+        "//arch/x86/kernel/cpu:cpuid_0x2_table.o",
+        "//arch/x86/kernel/cpu:cpuid-deps.o",
+        "//arch/x86/kernel/cpu:aperfmperf.o",
+        "//arch/x86/kernel/cpu:bugs.o",
+        "//arch/x86/kernel/cpu:match.o",
+        "//arch/x86/kernel/cpu:rdrand.o",
+        "//arch/x86/kernel/cpu:common.o",
+        "//arch/x86/kernel/cpu:cpuid_parser.o",
+        "//arch/x86/kernel/cpu:topology_amd.o",
+        "//arch/x86/kernel/cpu:topology_ext.o",
+        "//arch/x86/kernel/cpu:topology_common.o",
+        "//arch/x86/kernel/cpu:scattered.o",
+        "//arch/x86/kernel/cpu:cacheinfo.o",
+        "//arch/x86/kernel:stacktrace.o",
+        "//arch/x86/kernel:i8237.o",
+        "//arch/x86/kernel:step.o",
+        "//arch/x86/kernel:ptrace.o",
+        "//arch/x86/kernel/fpu:xstate.o",
+        "//arch/x86/kernel/fpu:signal.o",
+        "//arch/x86/kernel/fpu:regset.o",
+        "//arch/x86/kernel/fpu:core.o",
+        "//arch/x86/kernel/fpu:bugs.o",
+        "//arch/x86/kernel/fpu:init.o",
+        "//arch/x86/kernel:process.o",
+        "//arch/x86/kernel:static_call.o",
+        "//arch/x86/kernel:irqflags.o",
+        "//arch/x86/kernel:resource.o",
+        "//arch/x86/kernel:rtc.o",
+        "//arch/x86/kernel:io_delay.o",
+        "//arch/x86/kernel:tsc_msr.o",
+        "//arch/x86/kernel:tsc.o",
+        "//arch/x86/kernel:hw_breakpoint.o",
+        "//arch/x86/kernel:i8253.o",
+        "//arch/x86/kernel:alternative.o",
+        "//arch/x86/kernel:kdebugfs.o",
+        "//arch/x86/kernel:quirks.o",
+        "//arch/x86/kernel:pci-dma.o",
+        "//arch/x86/kernel:e820.o",
+        "//arch/x86/kernel:bootflag.o",
+        "//arch/x86/kernel:ksysfs.o",
+        "//arch/x86/kernel:sys_x86_64.o",
+        "//arch/x86/kernel:probe_roms.o",
+        "//arch/x86/kernel:irq_work.o",
+        "//arch/x86/kernel:irqinit.o",
+        "//arch/x86/kernel:i8259.o",
+        "//arch/x86/kernel:x86_init.o",
+        "//arch/x86/kernel:setup.o",
+        "//arch/x86/kernel:ibt_selftest.o",
+        "//arch/x86/kernel:nmi.o",
+        "//arch/x86/kernel:dumpstack.o",
+        "//arch/x86/kernel:ioport.o",
+        "//arch/x86/kernel:time.o",
+        "//arch/x86/kernel:dumpstack_64.o",
+        "//arch/x86/kernel:irq_64.o",
+        "//arch/x86/kernel:irq.o",
+        "//arch/x86/kernel:idt.o",
+        "//arch/x86/kernel:traps.o",
+        "//arch/x86/kernel:signal_64.o",
+        "//arch/x86/kernel:signal.o",
+        "//arch/x86/kernel:process_64.o",
+        "//arch/x86/kernel:platform-quirks.o",
+        "//arch/x86/kernel:ebda.o",
+        "//arch/x86/kernel:head64.o",
+        "//arch/x86/kernel:head_64.o",
+        "//arch/x86/mm:pkeys.o",
+        "//arch/x86/mm/pat:memtype.o",
+        "//arch/x86/mm/pat:set_memory.o",
+        "//arch/x86/mm:pgprot.o",
+        "//arch/x86/mm:maccess.o",
+        "//arch/x86/mm:cpu_entry_area.o",
+        "//arch/x86/mm:tlb.o",
+        "//arch/x86/mm:physaddr.o",
+        "//arch/x86/mm:pgtable.o",
+        "//arch/x86/mm:mmap.o",
+        "//arch/x86/mm:extable.o",
+        "//arch/x86/mm:ioremap.o",
+        "//arch/x86/mm:fault.o",
+        "//arch/x86/mm:init_64.o",
+        "//arch/x86/mm:init.o",
+        "//arch/x86/virt/svm:cmdline.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "arch_x86_net_built_in_a",
+    out = "net/built-in.a",
+    op = "cDPrST",
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/bpf_perf_event.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "bpf_perf_event_h",
+    outs = ["include/generated/uapi/asm/bpf_perf_event.h"],
+    include = "asm-generic/bpf_perf_event.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/cpufeaturemasks.h
+# runs in the reference cwd (.), mirrored under the output tree; the recipe as the reference spelled it
+tree_recipe(
+    name = "cpufeaturemasks_h",
+    outs = ["include/generated/asm/cpufeaturemasks.h"],
+    srcs = [
+        "//:.config",
+        "include/asm/cpufeatures.h",
+        "//arch/x86/tools:cpufeaturemasks.awk",
+    ],
+    stage = [
+        "//:.config",
+        "include/asm/cpufeatures.h",
+        "//arch/x86/tools:cpufeaturemasks.awk",
+    ],
+    stage_dests = [
+        ".config",
+        "arch/x86/include/asm/cpufeatures.h",
+        "arch/x86/tools/cpufeaturemasks.awk",
+    ],
+    exports = [
+        "CC",
+        "AR",
+        "LD",
+        "NM",
+        "OBJCOPY",
+        "STRIP",
+    ],
+    cc_wrappers = [
+        "clang",
+        "clang++",
+    ],
+    bin_wrappers = {
+        "ld.lld": "LD",
+        "llvm-ar": "AR",
+        "llvm-nm": "NM",
+        "llvm-objcopy": "OBJCOPY",
+        "llvm-strip": "STRIP",
+    },
+    beside_wrappers = [
+        "llvm-objdump",
+        "llvm-readelf",
+    ],
+    env_map = dict(COMMON_ENV, ARCH_DRIVERS = "arch/x86/pci/ ", BASH = "bash", CC_FLAGS_FPU = "-msse -msse2 -D_LINUX_FPU_COMPILATION_UNIT", CHECKFLAGS = "-D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ -Wbitwise -Wno-return-void -Wno-unknown-attribute  -D__x86_64__ --arch=x86 -mlittle-endian -m64", CLIPPY_CONF_DIR = ".", INSTALL_DTBS_PATH = "/boot/dtbs/", KBUILD_AFLAGS = "-D__ASSEMBLY__ -fno-PIE -m64", KBUILD_CFLAGS = "-fshort-wchar -funsigned-char -fno-common -fno-PIE -fno-strict-aliasing -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -mno-sse4a -fcf-protection=branch -fno-jump-tables -m64 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mstack-alignment=8 -mskip-rax-setup -march=x86-64 -mtune=generic -mno-red-zone -mcmodel=kernel -Wno-sign-compare -fno-asynchronous-unwind-tables -fno-delete-null-pointer-checks -Os -fno-stack-protector -fomit-frame-pointer -ftrivial-auto-var-init=zero -fexperimental-late-parse-attributes  -fno-stack-clash-protection -falign-functions=16  -fstrict-flex-arrays=3 -fno-strict-overflow -fno-stack-check -fno-builtin-wcslen -Wall -Wextra -Wundef -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Werror=strict-prototypes -Wno-format-security -Wno-trigraphs -Wno-frame-address  -Wno-address-of-packed-member -Wmissing-declarations -Wmissing-prototypes -Wframe-larger-than=1280  -Wno-format-overflow-non-kprintf  -Wno-format-truncation-non-kprintf  -Wno-default-const-init-unsafe -Wno-type-limits -Wno-pointer-sign -Wcast-function-type  -Wno-unterminated-string-initialization  -Wimplicit-fallthrough -Werror=date-time -Werror=incompatible-pointer-types -Wenum-conversion -Wunused -Wno-unused-but-set-variable -Wno-unused-const-variable  -Wno-format-overflow -Wno-override-init  -Wno-pointer-to-enum-cast -Wno-tautological-constant-out-of-range-compare -Wno-unaligned-access -Wno-enum-compare-conditional -Wno-missing-field-initializers -Wno-shift-negative-value -Wno-enum-enum-conversion -Wno-sign-compare -Wno-unused-parameter", KBUILD_CPPFLAGS = "-D__KERNEL__ --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -fmacro-prefix-map=.=", KBUILD_HOSTCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11   -I scripts/include", KBUILD_HOSTCXXFLAGS = "-Wall -O2   -I scripts/include", KBUILD_HOSTRUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -O -Cstrip=debuginfo -Zallow-features=  ", KBUILD_LDFLAGS = "-m elf_x86_64 -z noexecstack", KBUILD_LDFLAGS_MODULE = "--build-id=sha1", KBUILD_RUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -Cpanic=abort -Cembed-bitcode=n -Clto=n -Cforce-unwind-tables=n -Ccodegen-units=1 -Csymbol-mangling-version=v0 -Crelocation-model=static -Zfunction-sections=n -Wclippy::float_arithmetic --target=./scripts/target.json -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2 -Zcf-protection=branch -Cjump-tables=n -Ctarget-cpu=x86-64 -Ztune-cpu=generic -Cno-redzone=y -Ccode-model=kernel -Copt-level=s -Cdebug-assertions=n -Coverflow-checks=n", KBUILD_USERCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11  --target=x86_64-linux-gnu -m64", KBUILD_USERLDFLAGS = "--target=x86_64-linux-gnu -m64 --ld-path=ld.lld", KERNELDOC = "tools/docs/kernel-doc", KERNELRELEASE = "", LDFLAGS_vmlinux = "", LINUXINCLUDE = "-Iarch/x86/include -I./arch/x86/include/generated -Iinclude -I./include -Iarch/x86/include/uapi -I./arch/x86/include/generated/uapi -Iinclude/uapi -I./include/generated/uapi -include include/linux/compiler-version.h -include include/linux/kconfig.h", MODLIB = "/lib/modules/", NOSTDINC_FLAGS = "-nostdinc", O = ".", OBJCOPYFLAGS = "", REALMODE_CFLAGS = "-std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -m16 -g -Os -DDISABLE_BRANCH_PROFILING -D__DISABLE_EXPORTS -Wall -Wstrict-prototypes -march=i386 -mregparm=3 -fno-strict-aliasing -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse -fcf-protection=none -ffreestanding -fno-stack-protector -Wno-address-of-packed-member -mstack-alignment=4 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument", RETPOLINE_CFLAGS = "-mretpoline-external-thunk -mindirect-branch-cs-prefix", VPATH = ".", objtree = ".", srcroot = ".", srctree = "."),
+    recipe = [
+        "/bin/sh -c 'set -e; mkdir -p arch/x86/include/generated/asm/; trap \"rm -f arch/x86/include/generated/asm/.tmp_cpufeaturemasks.h\" EXIT; { awk -f arch/x86/tools/cpufeaturemasks.awk arch/x86/include/asm/cpufeatures.h .config; } > arch/x86/include/generated/asm/.tmp_cpufeaturemasks.h; if [ ! -r arch/x86/include/generated/asm/cpufeaturemasks.h ] || ! cmp -s arch/x86/include/generated/asm/cpufeaturemasks.h arch/x86/include/generated/asm/.tmp_cpufeaturemasks.h; then echo '\\''  UPD     arch/x86/include/generated/asm/cpufeaturemasks.h'\\''; mv -f arch/x86/include/generated/asm/.tmp_cpufeaturemasks.h arch/x86/include/generated/asm/cpufeaturemasks.h; fi'",
+    ],
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/device.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "device_h",
+    outs = ["include/generated/asm/device.h"],
+    include = "asm-generic/device.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/early_ioremap.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "early_ioremap_h",
+    outs = ["include/generated/asm/early_ioremap.h"],
+    include = "asm-generic/early_ioremap.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/errno.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "errno_h",
+    outs = ["include/generated/uapi/asm/errno.h"],
+    include = "asm-generic/errno.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/fcntl.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "fcntl_h",
+    outs = ["include/generated/uapi/asm/fcntl.h"],
+    include = "asm-generic/fcntl.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/fprobe.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "fprobe_h",
+    outs = ["include/generated/asm/fprobe.h"],
+    include = "asm-generic/fprobe.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/ioctl.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "ioctl_h",
+    outs = ["include/generated/uapi/asm/ioctl.h"],
+    include = "asm-generic/ioctl.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/ioctls.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "ioctls_h",
+    outs = ["include/generated/uapi/asm/ioctls.h"],
+    include = "asm-generic/ioctls.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/ipcbuf.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "ipcbuf_h",
+    outs = ["include/generated/uapi/asm/ipcbuf.h"],
+    include = "asm-generic/ipcbuf.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/irq_regs.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "irq_regs_h",
+    outs = ["include/generated/asm/irq_regs.h"],
+    include = "asm-generic/irq_regs.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/kmap_size.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "kmap_size_h",
+    outs = ["include/generated/asm/kmap_size.h"],
+    include = "asm-generic/kmap_size.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/local64.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "local64_h",
+    outs = ["include/generated/asm/local64.h"],
+    include = "asm-generic/local64.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/mcs_spinlock.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "mcs_spinlock_h",
+    outs = ["include/generated/asm/mcs_spinlock.h"],
+    include = "asm-generic/mcs_spinlock.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/mmiowb.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "mmiowb_h",
+    outs = ["include/generated/asm/mmiowb.h"],
+    include = "asm-generic/mmiowb.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/mmzone.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "mmzone_h",
+    outs = ["include/generated/asm/mmzone.h"],
+    include = "asm-generic/mmzone.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/module.lds.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "module_lds_h",
+    outs = ["include/generated/asm/module.lds.h"],
+    include = "asm-generic/module.lds.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/param.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "param_h",
+    outs = ["include/generated/uapi/asm/param.h"],
+    include = "asm-generic/param.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/poll.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "poll_h",
+    outs = ["include/generated/uapi/asm/poll.h"],
+    include = "asm-generic/poll.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/resource.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "resource_h",
+    outs = ["include/generated/uapi/asm/resource.h"],
+    include = "asm-generic/resource.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/ring_buffer.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "ring_buffer_h",
+    outs = ["include/generated/asm/ring_buffer.h"],
+    include = "asm-generic/ring_buffer.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/asm/rwonce.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "rwonce_h",
+    outs = ["include/generated/asm/rwonce.h"],
+    include = "asm-generic/rwonce.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/socket.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "socket_h",
+    outs = ["include/generated/uapi/asm/socket.h"],
+    include = "asm-generic/socket.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/sockios.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "sockios_h",
+    outs = ["include/generated/uapi/asm/sockios.h"],
+    include = "asm-generic/sockios.h",
+)
+
+# syscalltbl.sh @ None: arch/x86/include/generated/asm/syscalls_32.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "syscalls_32_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_32.tbl",
+        "//scripts:syscalltbl.sh",
+    ],
+    out = "include/generated/asm/syscalls_32.h",
+    cmd = "sh $(location //scripts:syscalltbl.sh) --abis i386 $(location //arch/x86/entry/syscalls:syscall_32.tbl) $@",
+)
+
+# syscalltbl.sh @ None: arch/x86/include/generated/asm/syscalls_64.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "syscalls_64_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_64.tbl",
+        "//scripts:syscalltbl.sh",
+    ],
+    out = "include/generated/asm/syscalls_64.h",
+    cmd = "sh $(location //scripts:syscalltbl.sh) --abis common,64 $(location //arch/x86/entry/syscalls:syscall_64.tbl) $@",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/termbits.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "termbits_h",
+    outs = ["include/generated/uapi/asm/termbits.h"],
+    include = "asm-generic/termbits.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/termios.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "termios_h",
+    outs = ["include/generated/uapi/asm/termios.h"],
+    include = "asm-generic/termios.h",
+)
+
+# sh @ recipe line: arch/x86/include/generated/uapi/asm/types.h
+# Kbuild's `wrap` step: the generic header included under the
+# arch's own name (a generated-y of the arch's Makefile)
+wrap_header(
+    name = "types_h",
+    outs = ["include/generated/uapi/asm/types.h"],
+    include = "asm-generic/types.h",
+)
+
+# syscallhdr.sh @ None: arch/x86/include/generated/uapi/asm/unistd_32.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "unistd_32_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_32.tbl",
+        "//scripts:syscallhdr.sh",
+    ],
+    out = "include/generated/uapi/asm/unistd_32.h",
+    cmd = "sh $(location //scripts:syscallhdr.sh) --abis i386 --emit-nr $(location //arch/x86/entry/syscalls:syscall_32.tbl) $@",
+)
+
+# syscallhdr.sh @ None: arch/x86/include/generated/asm/unistd_32_ia32.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "unistd_32_ia32_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_32.tbl",
+        "//scripts:syscallhdr.sh",
+    ],
+    out = "include/generated/asm/unistd_32_ia32.h",
+    cmd = "sh $(location //scripts:syscallhdr.sh) --abis i386 --emit-nr --prefix ia32_ $(location //arch/x86/entry/syscalls:syscall_32.tbl) $@",
+)
+
+# syscallhdr.sh @ None: arch/x86/include/generated/uapi/asm/unistd_64.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "unistd_64_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_64.tbl",
+        "//scripts:syscallhdr.sh",
+    ],
+    out = "include/generated/uapi/asm/unistd_64.h",
+    cmd = "sh $(location //scripts:syscallhdr.sh) --abis common,64 --emit-nr $(location //arch/x86/entry/syscalls:syscall_64.tbl) $@",
+)
+
+# syscallhdr.sh @ None: arch/x86/include/generated/asm/unistd_64_x32.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "unistd_64_x32_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_64.tbl",
+        "//scripts:syscallhdr.sh",
+    ],
+    out = "include/generated/asm/unistd_64_x32.h",
+    cmd = "sh $(location //scripts:syscallhdr.sh) --abis x32 --emit-nr --prefix x32_ $(location //arch/x86/entry/syscalls:syscall_64.tbl) $@",
+)
+
+# syscallhdr.sh @ None: arch/x86/include/generated/uapi/asm/unistd_x32.h
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "unistd_x32_h",
+    srcs = [
+        "//arch/x86/entry/syscalls:syscall_64.tbl",
+        "//scripts:syscallhdr.sh",
+    ],
+    out = "include/generated/uapi/asm/unistd_x32.h",
+    cmd = "sh $(location //scripts:syscallhdr.sh) --abis common,x32 --emit-nr --offset __X32_SYSCALL_BIT $(location //arch/x86/entry/syscalls:syscall_64.tbl) $@",
+)

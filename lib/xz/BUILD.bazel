@@ -1,0 +1,90 @@
+# lib/xz: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   lib_xz_built-in (static_library) -> cc_library lib_xz_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "xz_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], exclude = [
+        "xz_crc32.c",
+        "xz_dec_bcj.c",
+        "xz_dec_lzma2.c",
+        "xz_dec_stream.c",
+    ], allow_empty = True),
+    textual_hdrs = [
+        "xz_crc32.c",
+        "xz_dec_bcj.c",
+        "xz_dec_lzma2.c",
+        "xz_dec_stream.c",
+    ],
+)
+
+# the object(s) of `lib_xz_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "lib_xz_built_in_objects",
+    lib = ":lib_xz_built_in",
+    objects = [
+        "xz_dec_bcj.o",
+        "xz_dec_lzma2.o",
+        "xz_dec_stream.o",
+        "xz_dec_syms.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "lib_xz_built_in",
+    srcs = [
+        "xz_dec_bcj.c",
+        "xz_dec_lzma2.c",
+        "xz_dec_stream.c",
+        "xz_dec_syms.c",
+    ],
+    copts = [
+        "-Ilib/xz",
+        "-DKBUILD_MODFILE=\\\"lib/xz/xz_dec\\\"",
+        "-DKBUILD_MODNAME=\\\"xz_dec\\\"",
+        "-D__KBUILD_MODNAME=xz_dec",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":xz_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//lib:lib_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "module",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "xz_dec_syms.o",
+        "xz_dec_stream.o",
+        "xz_dec_lzma2.o",
+        "xz_dec_bcj.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
