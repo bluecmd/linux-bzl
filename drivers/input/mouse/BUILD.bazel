@@ -1,0 +1,91 @@
+# drivers/input/mouse: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_input_mouse_built-in (static_library) -> cc_library drivers_input_mouse_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "mouse_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_input_mouse_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_input_mouse_built_in_objects",
+    lib = ":drivers_input_mouse_built_in",
+    objects = [
+        "alps.o",
+        "byd.o",
+        "cypress_ps2.o",
+        "focaltech.o",
+        "logips2pp.o",
+        "psmouse-base.o",
+        "synaptics.o",
+        "trackpoint.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "drivers_input_mouse_built_in",
+    srcs = [
+        "alps.c",
+        "byd.c",
+        "cypress_ps2.c",
+        "focaltech.c",
+        "logips2pp.c",
+        "psmouse-base.c",
+        "synaptics.c",
+        "trackpoint.c",
+    ],
+    copts = [
+        "-Idrivers/input/mouse",
+        "-DKBUILD_MODFILE=\\\"drivers/input/mouse/psmouse\\\"",
+        "-DKBUILD_MODNAME=\\\"psmouse\\\"",
+        "-D__KBUILD_MODNAME=psmouse",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":mouse_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "module",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "psmouse-base.o",
+        "synaptics.o",
+        "focaltech.o",
+        "alps.o",
+        "byd.o",
+        "logips2pp.o",
+        "trackpoint.o",
+        "cypress_ps2.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

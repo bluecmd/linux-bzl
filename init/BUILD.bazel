@@ -1,0 +1,170 @@
+# init: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   init_built-in (static_library) -> cc_library init_built_in
+#   init_version_timestamp (object_library) -> cc_library init_version_timestamp
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kbuild_env.bzl", "COMMON_ENV")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("//bazel/rules:stamp.bzl", "stamp")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+    "Makefile",
+    "version-timestamp.c",
+])
+
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "init_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], exclude = ["version-timestamp.c"], allow_empty = True),
+    textual_hdrs = ["version-timestamp.c"],
+)
+
+# the object(s) of `init_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "init_built_in_objects",
+    lib = ":init_built_in",
+    objects = [
+        "calibrate.o",
+        "do_mounts.o",
+        "do_mounts_initrd.o",
+        "init_task.o",
+        "initramfs.o",
+        "main.o",
+        "version.o",
+    ],
+)
+
+# the object(s) of `init_version_timestamp` a recipe reads, at the paths it names
+cc_object_files(
+    name = "init_version_timestamp_objects",
+    lib = ":init_version_timestamp",
+    objects = ["version-timestamp.o"],
+)
+
+# sh @ recipe line: init/utsversion-tmp.h
+# Kbuild's filechk stamp: the glue (the tmp, cmp, mv) is the rule's own work
+stamp(
+    name = "utsversion_tmp_h",
+    outs = ["utsversion-tmp.h"],
+    exports = [
+        "CC",
+        "AR",
+        "LD",
+        "NM",
+        "OBJCOPY",
+        "STRIP",
+    ],
+    cc_wrappers = [
+        "clang",
+        "clang++",
+    ],
+    bin_wrappers = {
+        "ld.lld": "LD",
+        "llvm-ar": "AR",
+        "llvm-nm": "NM",
+        "llvm-objcopy": "OBJCOPY",
+        "llvm-strip": "STRIP",
+    },
+    beside_wrappers = [
+        "llvm-objdump",
+        "llvm-readelf",
+    ],
+    env_map = dict(COMMON_ENV, ARCH_DRIVERS = "arch/x86/pci/ ", BASH = "bash", CC_FLAGS_FPU = "-msse -msse2 -D_LINUX_FPU_COMPILATION_UNIT", CHECKFLAGS = "-D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ -Wbitwise -Wno-return-void -Wno-unknown-attribute  -D__x86_64__ --arch=x86 -mlittle-endian -m64", CLIPPY_CONF_DIR = ".", INSTALL_DTBS_PATH = "/boot/dtbs/7.2.0", KBUILD_AFLAGS = "-D__ASSEMBLY__ -fno-PIE -m64  ", KBUILD_CFLAGS = "-fshort-wchar -funsigned-char -fno-common -fno-PIE -fno-strict-aliasing -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -mno-sse4a -fcf-protection=branch -fno-jump-tables -m64 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mstack-alignment=8 -mskip-rax-setup -march=x86-64 -mtune=generic -mno-red-zone -mcmodel=kernel -Wno-sign-compare -fno-asynchronous-unwind-tables -fno-delete-null-pointer-checks -Os -fno-stack-protector -fomit-frame-pointer -ftrivial-auto-var-init=zero -fexperimental-late-parse-attributes  -fno-stack-clash-protection -falign-functions=16  -fstrict-flex-arrays=3 -fno-strict-overflow -fno-stack-check -fno-builtin-wcslen -Wall -Wextra -Wundef -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Werror=strict-prototypes -Wno-format-security -Wno-trigraphs -Wno-frame-address  -Wno-address-of-packed-member -Wmissing-declarations -Wmissing-prototypes -Wframe-larger-than=1280  -Wno-format-overflow-non-kprintf  -Wno-format-truncation-non-kprintf  -Wno-default-const-init-unsafe -Wno-type-limits -Wno-pointer-sign -Wcast-function-type  -Wno-unterminated-string-initialization  -Wimplicit-fallthrough -Werror=date-time -Werror=incompatible-pointer-types -Wenum-conversion -Wunused -Wno-unused-but-set-variable -Wno-unused-const-variable  -Wno-format-overflow -Wno-override-init  -Wno-pointer-to-enum-cast -Wno-tautological-constant-out-of-range-compare -Wno-unaligned-access -Wno-enum-compare-conditional -Wno-missing-field-initializers -Wno-shift-negative-value -Wno-enum-enum-conversion -Wno-sign-compare -Wno-unused-parameter  ", KBUILD_CPPFLAGS = "-D__KERNEL__ --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -fmacro-prefix-map=.=", KBUILD_HOSTCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11   -I scripts/include", KBUILD_HOSTCXXFLAGS = "-Wall -O2   -I scripts/include", KBUILD_HOSTRUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -O -Cstrip=debuginfo -Zallow-features=  ", KBUILD_LDFLAGS = "-m elf_x86_64 -z noexecstack", KBUILD_LDFLAGS_MODULE = "--build-id=sha1", KBUILD_RUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -Cpanic=abort -Cembed-bitcode=n -Clto=n -Cforce-unwind-tables=n -Ccodegen-units=1 -Csymbol-mangling-version=v0 -Crelocation-model=static -Zfunction-sections=n -Wclippy::float_arithmetic --target=./scripts/target.json -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2 -Zcf-protection=branch -Cjump-tables=n -Ctarget-cpu=x86-64 -Ztune-cpu=generic -Cno-redzone=y -Ccode-model=kernel -Copt-level=s -Cdebug-assertions=n -Coverflow-checks=n  ", KBUILD_USERCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11  --target=x86_64-linux-gnu -m64", KBUILD_USERLDFLAGS = "--target=x86_64-linux-gnu -m64 --ld-path=ld.lld", KERNELDOC = "tools/docs/kernel-doc", KERNELRELEASE = "7.2.0", LDFLAGS_vmlinux = "", LINUXINCLUDE = "-Iarch/x86/include -I./arch/x86/include/generated -Iinclude -I./include -Iarch/x86/include/uapi -I./arch/x86/include/generated/uapi -Iinclude/uapi -I./include/generated/uapi -include include/linux/compiler-version.h -include include/linux/kconfig.h", MODLIB = "/lib/modules/7.2.0", NOSTDINC_FLAGS = "-nostdinc", O = ".", OBJCOPYFLAGS = "", REALMODE_CFLAGS = "-std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -m16 -g -Os -DDISABLE_BRANCH_PROFILING -D__DISABLE_EXPORTS -Wall -Wstrict-prototypes -march=i386 -mregparm=3 -fno-strict-aliasing -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse -fcf-protection=none -ffreestanding -fno-stack-protector -Wno-address-of-packed-member -mstack-alignment=4 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument", RETPOLINE_CFLAGS = "-mretpoline-external-thunk -mindirect-branch-cs-prefix", VPATH = ".", obj = "init", objtree = ".", srcroot = ".", srctree = "."),
+    cmd = "utsver=$(echo '#'\"\" SMP PREEMPT \"\" | cut -b -64); echo '#'define UTS_VERSION \\\"\"${utsver}\"\\\"",
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "init_built_in",
+    srcs = [
+        "calibrate.c",
+        "do_mounts.c",
+        "do_mounts_initrd.c",
+        "init_task.c",
+        "initramfs.c",
+        "main.c",
+        "version.c",
+    ],
+    copts = [
+        "-fno-function-sections",
+        "-fno-data-sections",
+        "-Iinit",
+        "-I$(GENDIR)/init",
+    ],
+    deps = [
+        ":init_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated__init",
+    ],
+    features = ["kernel_compile_flags"],
+    per_source_copts = {
+        "version.c": [
+            "-include",
+            "$(GENDIR)/init/utsversion-tmp.h",
+        ],
+    },
+    kbuild = "built-in",
+    kbuild_modules = {
+        "mounts": [
+            "do_mounts.c",
+            "do_mounts_initrd.c",
+        ],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "main.o",
+        "version.o",
+        "do_mounts.o",
+        "do_mounts_initrd.o",
+        "initramfs.o",
+        "calibrate.o",
+        "init_task.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# CMake `init_version_timestamp` (object library)
+# OBJECT library: consumers link every object; alwayslink mirrors that
+cc_library(
+    name = "init_version_timestamp",
+    srcs = ["version-timestamp.c"],
+    copts = [
+        "-fno-function-sections",
+        "-fno-data-sections",
+        "-include",
+        "$(GENDIR)/include/generated/utsversion.h",
+        "-Iinit",
+        "-I$(GENDIR)/init",
+        "-DKBUILD_MODFILE=\\\"init/version-timestamp\\\"",
+        "-DKBUILD_BASENAME=\\\"version_timestamp\\\"",
+        "-DKBUILD_MODNAME=\\\"version_timestamp\\\"",
+        "-D__KBUILD_MODNAME=version_timestamp",
+    ],
+    deps = [
+        ":init_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_for_init_version_timestamp",
+    ],
+    features = ["kernel_compile_flags"],
+    alwayslink = True,
+)

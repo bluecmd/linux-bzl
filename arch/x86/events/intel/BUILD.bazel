@@ -1,0 +1,112 @@
+# arch/x86/events/intel: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   arch_x86_events_intel_built-in (static_library) -> cc_library arch_x86_events_intel_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "intel_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `arch_x86_events_intel_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_events_intel_built_in_objects",
+    lib = ":arch_x86_events_intel_built_in",
+    objects = [
+        "bts.o",
+        "core.o",
+        "cstate.o",
+        "ds.o",
+        "knc.o",
+        "lbr.o",
+        "p4.o",
+        "p6.o",
+        "pt.o",
+        "uncore.o",
+        "uncore_discovery.o",
+        "uncore_nhmex.o",
+        "uncore_snb.o",
+        "uncore_snbep.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "arch_x86_events_intel_built_in",
+    srcs = [
+        "bts.c",
+        "core.c",
+        "cstate.c",
+        "ds.c",
+        "knc.c",
+        "lbr.c",
+        "p4.c",
+        "p6.c",
+        "pt.c",
+        "uncore.c",
+        "uncore_discovery.c",
+        "uncore_nhmex.c",
+        "uncore_snb.c",
+        "uncore_snbep.c",
+    ],
+    copts = [
+        "-Iarch/x86/events/intel",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        "//sound/soc/sof/intel:intel_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//arch/x86:x86_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    kbuild_modules = {
+        "intel-cstate": ["cstate.c"],
+        "intel-uncore": [
+            "uncore.c",
+            "uncore_discovery.c",
+            "uncore_nhmex.c",
+            "uncore_snb.c",
+            "uncore_snbep.c",
+        ],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "core.o",
+        "bts.o",
+        "ds.o",
+        "knc.o",
+        "lbr.o",
+        "p4.o",
+        "p6.o",
+        "pt.o",
+        "uncore.o",
+        "uncore_nhmex.o",
+        "uncore_snb.o",
+        "uncore_snbep.o",
+        "uncore_discovery.o",
+        "cstate.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
