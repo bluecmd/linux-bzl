@@ -1,0 +1,21 @@
+# drivers/media/platform/aspeed: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_media_platform_aspeed_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

@@ -1,0 +1,460 @@
+# arch/x86/boot/compressed: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   vmlinux (executable) -> cc_binary arch_x86_boot_compressed_vmlinux
+load("//bazel/rules:cc_per_source_library.bzl", "cc_per_source_library")
+load("//bazel/rules:cc_raw_link.bzl", "cc_raw_link")
+load("//bazel/rules:kbuild_env.bzl", "COMMON_ENV")
+load("//bazel/rules:objcopy.bzl", "objcopy")
+load("//bazel/rules:savedcmd.bzl", "savedcmd")
+load("//bazel/rules:tool_stdout.bzl", "tool_stdout")
+load("//bazel/rules:tree_recipe.bzl", "tree_recipe")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "compressed_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# host tool the reference builds with `clang` (host tool run by mkpiggy); listed
+# under a genrule's `tools`, Bazel builds it for the exec platform
+cc_binary(
+    name = "mkpiggy",
+    srcs = ["mkpiggy.c"],
+    copts = [
+        "-Wstrict-prototypes",
+        "-O2",
+        "-Iscripts/include",
+        "-Itools/include",
+        "-Iarch/x86/boot/compressed",
+        "-I$(GENDIR)/arch/x86/boot/compressed",
+        "-fuse-ld=lld",
+    ],
+    deps = [
+        ":compressed_headers",
+        "//:pkg_headers",
+        "//arch/x86:x86_headers",
+        "//scripts:scripts_headers",
+    ],
+    tags = ["manual"],
+)
+
+# host-cc @ None: arch/x86/boot/compressed/vmlinux.lds
+# runs in the reference cwd (.), mirrored under the output tree; the recipe as the reference spelled it
+tree_recipe(
+    name = "arch_x86_boot_compressed_vmlinux_lds",
+    outs = ["vmlinux.lds"],
+    srcs = [
+        "vmlinux.lds.S",
+        "//arch/x86:include/asm/cache.h",
+        "//arch/x86:include/asm/ibt.h",
+        "//arch/x86:include/asm/linkage.h",
+        "//arch/x86:include/asm/page_64_types.h",
+        "//arch/x86:include/asm/page_types.h",
+        "//arch/x86:include/generated/asm/rwonce.h",
+        "//arch/x86:include/generated/uapi/asm/types.h",
+        "//arch/x86:include/uapi/asm/bitsperlong.h",
+        "//:include/asm-generic/bitsperlong.h",
+        "//:include/asm-generic/codetag.lds.h",
+        "//:include/asm-generic/int-ll64.h",
+        "//:include/asm-generic/rwonce.h",
+        "//:include/asm-generic/vmlinux.lds.h",
+        "//:include/generated/autoconf.h",
+        "//:include/linux/compiler-version.h",
+        "//:include/linux/compiler.h",
+        "//:include/linux/compiler_types.h",
+        "//:include/linux/const.h",
+        "//:include/linux/export.h",
+        "//:include/linux/kconfig.h",
+        "//:include/linux/linkage.h",
+        "//:include/linux/mem_encrypt.h",
+        "//:include/linux/stringify.h",
+        "//:include/linux/types.h",
+        "//:include/uapi/asm-generic/bitsperlong.h",
+        "//:include/uapi/asm-generic/int-ll64.h",
+        "//:include/uapi/asm-generic/types.h",
+        "//:include/uapi/linux/const.h",
+        "//:include/uapi/linux/types.h",
+        "//:include/vdso/const.h",
+        "//:include/vdso/page.h",
+    ],
+    stage = [
+        "vmlinux.lds.S",
+        "//arch/x86:include/asm/cache.h",
+        "//arch/x86:include/asm/ibt.h",
+        "//arch/x86:include/asm/linkage.h",
+        "//arch/x86:include/asm/page_64_types.h",
+        "//arch/x86:include/asm/page_types.h",
+        "//arch/x86:include/uapi/asm/bitsperlong.h",
+        "//:include/asm-generic/bitsperlong.h",
+        "//:include/asm-generic/codetag.lds.h",
+        "//:include/asm-generic/int-ll64.h",
+        "//:include/asm-generic/rwonce.h",
+        "//:include/asm-generic/vmlinux.lds.h",
+        "//:include/linux/compiler-version.h",
+        "//:include/linux/compiler.h",
+        "//:include/linux/compiler_types.h",
+        "//:include/linux/const.h",
+        "//:include/linux/export.h",
+        "//:include/linux/kconfig.h",
+        "//:include/linux/linkage.h",
+        "//:include/linux/mem_encrypt.h",
+        "//:include/linux/stringify.h",
+        "//:include/linux/types.h",
+        "//:include/uapi/asm-generic/bitsperlong.h",
+        "//:include/uapi/asm-generic/int-ll64.h",
+        "//:include/uapi/asm-generic/types.h",
+        "//:include/uapi/linux/const.h",
+        "//:include/uapi/linux/types.h",
+        "//:include/vdso/const.h",
+        "//:include/vdso/page.h",
+    ],
+    stage_dests = [
+        "arch/x86/boot/compressed/vmlinux.lds.S",
+        "arch/x86/include/asm/cache.h",
+        "arch/x86/include/asm/ibt.h",
+        "arch/x86/include/asm/linkage.h",
+        "arch/x86/include/asm/page_64_types.h",
+        "arch/x86/include/asm/page_types.h",
+        "arch/x86/include/uapi/asm/bitsperlong.h",
+        "include/asm-generic/bitsperlong.h",
+        "include/asm-generic/codetag.lds.h",
+        "include/asm-generic/int-ll64.h",
+        "include/asm-generic/rwonce.h",
+        "include/asm-generic/vmlinux.lds.h",
+        "include/linux/compiler-version.h",
+        "include/linux/compiler.h",
+        "include/linux/compiler_types.h",
+        "include/linux/const.h",
+        "include/linux/export.h",
+        "include/linux/kconfig.h",
+        "include/linux/linkage.h",
+        "include/linux/mem_encrypt.h",
+        "include/linux/stringify.h",
+        "include/linux/types.h",
+        "include/uapi/asm-generic/bitsperlong.h",
+        "include/uapi/asm-generic/int-ll64.h",
+        "include/uapi/asm-generic/types.h",
+        "include/uapi/linux/const.h",
+        "include/uapi/linux/types.h",
+        "include/vdso/const.h",
+        "include/vdso/page.h",
+    ],
+    refresh = [
+        "//arch/x86:include/generated/asm/rwonce.h",
+        "//arch/x86:include/generated/uapi/asm/types.h",
+        "//:include/generated/autoconf.h",
+    ],
+    refresh_dests = [
+        "arch/x86/include/generated/asm/rwonce.h",
+        "arch/x86/include/generated/uapi/asm/types.h",
+        "include/generated/autoconf.h",
+    ],
+    exports = [
+        "CC",
+        "AR",
+        "LD",
+        "NM",
+        "OBJCOPY",
+        "STRIP",
+    ],
+    cc_wrappers = [
+        "clang",
+        "clang++",
+    ],
+    bin_wrappers = {
+        "ld.lld": "LD",
+        "llvm-ar": "AR",
+        "llvm-nm": "NM",
+        "llvm-objcopy": "OBJCOPY",
+        "llvm-strip": "STRIP",
+    },
+    beside_wrappers = [
+        "llvm-objdump",
+        "llvm-readelf",
+    ],
+    env_map = dict(COMMON_ENV, ARCH_DRIVERS = "arch/x86/pci/ ", BASH = "/bin/sh", CC_FLAGS_FPU = "-msse -msse2 -D_LINUX_FPU_COMPILATION_UNIT", CHECKFLAGS = "-D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ -Wbitwise -Wno-return-void -Wno-unknown-attribute  -D__x86_64__ --arch=x86 -mlittle-endian -m64", CLIPPY_CONF_DIR = ".", INSTALL_DTBS_PATH = "/boot/dtbs/7.2.0", KBUILD_AFLAGS = "-m64 -O2 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -fno-strict-aliasing -fPIE -fno-jump-tables -Wundef -DDISABLE_BRANCH_PROFILING -mcmodel=small -mno-red-zone -mno-mmx -mno-sse -ffreestanding -fshort-wchar -fno-stack-protector -Wno-address-of-packed-member -Wno-pointer-sign -fno-asynchronous-unwind-tables -D__DISABLE_EXPORTS -Wa,-mrelax-relocations=no -include include/linux/hidden.h -D__ASSEMBLY__", KBUILD_CFLAGS = "-m64 -O2 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -fno-strict-aliasing -fPIE -fno-jump-tables -Wundef -DDISABLE_BRANCH_PROFILING -mcmodel=small -mno-red-zone -mno-mmx -mno-sse -ffreestanding -fshort-wchar -fno-stack-protector -Wno-address-of-packed-member -Wno-pointer-sign -fno-asynchronous-unwind-tables -D__DISABLE_EXPORTS -Wa,-mrelax-relocations=no -include include/linux/hidden.h", KBUILD_CPPFLAGS = "-D__KERNEL__ --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -fmacro-prefix-map=.=", KBUILD_HOSTCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11   -I scripts/include", KBUILD_HOSTCXXFLAGS = "-Wall -O2   -I scripts/include", KBUILD_HOSTRUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -O -Cstrip=debuginfo -Zallow-features=  ", KBUILD_LDFLAGS = "-m elf_x86_64", KBUILD_LDFLAGS_MODULE = "--build-id=sha1", KBUILD_RUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -Cpanic=abort -Cembed-bitcode=n -Clto=n -Cforce-unwind-tables=n -Ccodegen-units=1 -Csymbol-mangling-version=v0 -Crelocation-model=static -Zfunction-sections=n -Wclippy::float_arithmetic --target=./scripts/target.json -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2 -Zcf-protection=branch -Cjump-tables=n -Ctarget-cpu=x86-64 -Ztune-cpu=generic -Cno-redzone=y -Ccode-model=kernel -Copt-level=s -Cdebug-assertions=n -Coverflow-checks=n  ", KBUILD_USERCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11  --target=x86_64-linux-gnu -m64", KBUILD_USERLDFLAGS = "--target=x86_64-linux-gnu -m64 --ld-path=ld.lld", KERNELDOC = "tools/docs/kernel-doc", KERNELRELEASE = "7.2.0", LINUXINCLUDE = "-Iarch/x86/include -I./arch/x86/include/generated -Iinclude -I./include -Iarch/x86/include/uapi -I./arch/x86/include/generated/uapi -Iinclude/uapi -I./include/generated/uapi -include include/linux/compiler-version.h -include include/linux/kconfig.h", MODLIB = "/lib/modules/7.2.0", NOSTDINC_FLAGS = "-nostdinc", O = ".", OBJCOPYFLAGS = "", REALMODE_CFLAGS = "-std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -m16 -g -Os -DDISABLE_BRANCH_PROFILING -D__DISABLE_EXPORTS -Wall -Wstrict-prototypes -march=i386 -mregparm=3 -fno-strict-aliasing -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse -fcf-protection=none -ffreestanding -fno-stack-protector -Wno-address-of-packed-member -mstack-alignment=4 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument", RETPOLINE_CFLAGS = "-mretpoline-external-thunk -mindirect-branch-cs-prefix", VPATH = ".", obj = "arch/x86/boot/compressed", objtree = ".", srcroot = ".", srctree = "."),
+    recipe = [
+        "clang -E -Wp,-MMD,arch/x86/boot/compressed/.vmlinux.lds.d -nostdinc -Iarch/x86/include -Iarch/x86/include/generated -Iinclude -Iinclude -Iarch/x86/include/uapi -Iarch/x86/include/generated/uapi -Iinclude/uapi -Iinclude/generated/uapi -include include/linux/compiler-version.h -include include/linux/kconfig.h -D__KERNEL__ --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -fmacro-prefix-map=.= -Iarch/x86/boot/compressed -Iarch/x86/boot/compressed -P -Ux86 -D__ASSEMBLY__ -DLINKER_SCRIPT -o arch/x86/boot/compressed/vmlinux.lds arch/x86/boot/compressed/vmlinux.lds.S",
+    ],
+)
+
+# mkpiggy @ None: arch/x86/boot/compressed/piggy.S
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "piggy_S",
+    tool = ":mkpiggy",
+    srcs = ["vmlinux.bin.xz"],
+    out = "piggy.S",
+    cmd = "$(location :mkpiggy) $(location vmlinux.bin.xz) > $@",
+)
+
+# binutils @ None: arch/x86/boot/compressed/vmlinux.bin
+# the toolchain's objcopy over the link output
+objcopy(
+    name = "vmlinux_bin",
+    src = "//:vmlinux",
+    out = "vmlinux.bin",
+    args = [
+        "-R",
+        ".comment",
+        "-S",
+    ],
+)
+
+# sh @ recipe line: arch/x86/boot/compressed/vmlinux.bin.xz
+# Kbuild's savedcmd: the glue (the echo, the traps, the .cmd file) is the rule's own work
+savedcmd(
+    name = "vmlinux_bin_xz",
+    outs = ["vmlinux.bin.xz"],
+    srcs = [
+        "vmlinux.bin",
+        "//scripts:xz_wrap.sh",
+    ],
+    stage = ["//scripts:xz_wrap.sh"],
+    stage_dests = ["scripts/xz_wrap.sh"],
+    refresh = ["vmlinux.bin"],
+    refresh_dests = ["arch/x86/boot/compressed/vmlinux.bin"],
+    exports = [
+        "CC",
+        "AR",
+        "LD",
+        "NM",
+        "OBJCOPY",
+        "STRIP",
+    ],
+    cc_wrappers = [
+        "clang",
+        "clang++",
+    ],
+    bin_wrappers = {
+        "ld.lld": "LD",
+        "llvm-ar": "AR",
+        "llvm-nm": "NM",
+        "llvm-objcopy": "OBJCOPY",
+        "llvm-strip": "STRIP",
+    },
+    beside_wrappers = [
+        "llvm-objdump",
+        "llvm-readelf",
+    ],
+    env_map = dict(COMMON_ENV, ARCH_DRIVERS = "arch/x86/pci/ ", BASH = "bash", CC_FLAGS_FPU = "-msse -msse2 -D_LINUX_FPU_COMPILATION_UNIT", CHECKFLAGS = "-D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ -Wbitwise -Wno-return-void -Wno-unknown-attribute  -D__x86_64__ --arch=x86 -mlittle-endian -m64", CLIPPY_CONF_DIR = ".", INSTALL_DTBS_PATH = "/boot/dtbs/7.2.0", KBUILD_AFLAGS = "-m64 -O2 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -fno-strict-aliasing -fPIE -fno-jump-tables -Wundef -DDISABLE_BRANCH_PROFILING -mcmodel=small -mno-red-zone -mno-mmx -mno-sse -ffreestanding -fshort-wchar -fno-stack-protector -Wno-address-of-packed-member -Wno-pointer-sign -fno-asynchronous-unwind-tables -D__DISABLE_EXPORTS -Wa,-mrelax-relocations=no -include include/linux/hidden.h -D__ASSEMBLY__", KBUILD_CFLAGS = "-m64 -O2 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -fno-strict-aliasing -fPIE -fno-jump-tables -Wundef -DDISABLE_BRANCH_PROFILING -mcmodel=small -mno-red-zone -mno-mmx -mno-sse -ffreestanding -fshort-wchar -fno-stack-protector -Wno-address-of-packed-member -Wno-pointer-sign -fno-asynchronous-unwind-tables -D__DISABLE_EXPORTS -Wa,-mrelax-relocations=no -include include/linux/hidden.h", KBUILD_CPPFLAGS = "-D__KERNEL__ --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -fmacro-prefix-map=.=", KBUILD_HOSTCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11   -I scripts/include", KBUILD_HOSTCXXFLAGS = "-Wall -O2   -I scripts/include", KBUILD_HOSTRUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -O -Cstrip=debuginfo -Zallow-features=  ", KBUILD_LDFLAGS = "-m elf_x86_64", KBUILD_LDFLAGS_MODULE = "--build-id=sha1", KBUILD_RUSTFLAGS = "--edition=2021 -Zbinary_dep_depinfo=y -Astable_features -Aunused_features -Dnon_ascii_idents -Dunsafe_op_in_unsafe_fn -Wmissing_docs -Wrust_2018_idioms -Wunreachable_pub -Wclippy::all -Wclippy::as_ptr_cast_mut -Wclippy::as_underscore -Wclippy::cast_lossless -Aclippy::collapsible_if -Aclippy::collapsible_match -Wclippy::ignored_unit_patterns -Aclippy::incompatible_msrv -Wclippy::mut_mut -Wclippy::needless_bitwise_bool -Aclippy::needless_lifetimes -Wclippy::no_mangle_with_rust_abi -Wclippy::ptr_as_ptr -Wclippy::ptr_cast_constness -Wclippy::ref_as_ptr -Wclippy::undocumented_unsafe_blocks -Aclippy::uninlined_format_args -Wclippy::unnecessary_safety_comment -Wclippy::unnecessary_safety_doc -Aclippy::unwrap_or_default -Wrustdoc::missing_crate_level_docs -Wrustdoc::unescaped_backticks -Cpanic=abort -Cembed-bitcode=n -Clto=n -Cforce-unwind-tables=n -Ccodegen-units=1 -Csymbol-mangling-version=v0 -Crelocation-model=static -Zfunction-sections=n -Wclippy::float_arithmetic --target=./scripts/target.json -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2 -Zcf-protection=branch -Cjump-tables=n -Ctarget-cpu=x86-64 -Ztune-cpu=generic -Cno-redzone=y -Ccode-model=kernel -Copt-level=s -Cdebug-assertions=n -Coverflow-checks=n  ", KBUILD_USERCFLAGS = "-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu11  --target=x86_64-linux-gnu -m64", KBUILD_USERLDFLAGS = "--target=x86_64-linux-gnu -m64 --ld-path=ld.lld", KERNELDOC = "tools/docs/kernel-doc", KERNELRELEASE = "7.2.0", LINUXINCLUDE = "-Iarch/x86/include -I./arch/x86/include/generated -Iinclude -I./include -Iarch/x86/include/uapi -I./arch/x86/include/generated/uapi -Iinclude/uapi -I./include/generated/uapi -include include/linux/compiler-version.h -include include/linux/kconfig.h", MODLIB = "/lib/modules/7.2.0", NOSTDINC_FLAGS = "-nostdinc", O = ".", OBJCOPYFLAGS = "", REALMODE_CFLAGS = "-std=gnu11 -fms-extensions -Wno-gnu -Wno-microsoft-anon-tag -m16 -g -Os -DDISABLE_BRANCH_PROFILING -D__DISABLE_EXPORTS -Wall -Wstrict-prototypes -march=i386 -mregparm=3 -fno-strict-aliasing -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse -fcf-protection=none -ffreestanding -fno-stack-protector -Wno-address-of-packed-member -mstack-alignment=4 --target=x86_64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument", RETPOLINE_CFLAGS = "-mretpoline-external-thunk -mindirect-branch-cs-prefix", VPATH = ".", obj = "arch/x86/boot/compressed", objtree = ".", srcroot = ".", srctree = "."),
+    cmd = "{ cat arch/x86/boot/compressed/vmlinux.bin | sh scripts/xz_wrap.sh; printf \\\\330\\\\020\\\\341\\\\000; } > arch/x86/boot/compressed/vmlinux.bin.xz",
+    tag = "XZKERN",
+)
+
+# CMake `vmlinux` (executable)
+# the objects `vmlinux` links (its own TUs)
+cc_per_source_library(
+    name = "arch_x86_boot_compressed_vmlinux_objs",
+    srcs = [
+        "kernel_info.S",
+        "head_64.S",
+        "misc.c",
+        "string.c",
+        "cmdline.c",
+        "error.c",
+        "piggy.S",
+        "cpuflags.c",
+        "ident_map_64.c",
+        "idt_64.c",
+        "idt_handlers_64.S",
+        "pgtable_64.c",
+    ],
+    copts = [
+        "-nostdinc",
+        "-Iarch/x86/include",
+        "-I$(GENDIR)/arch/x86/include",
+        "-Iarch/x86/include/generated",
+        "-I$(GENDIR)/arch/x86/include/generated",
+        "-Iinclude",
+        "-I$(GENDIR)/include",
+        "-Iarch/x86/include/uapi",
+        "-Iarch/x86/include/generated/uapi",
+        "-I$(GENDIR)/arch/x86/include/generated/uapi",
+        "-Iinclude/uapi",
+        "-Iinclude/generated/uapi",
+        "-I$(GENDIR)/include/generated/uapi",
+        "-include",
+        "include/linux/compiler-version.h",
+        "-include",
+        "include/linux/kconfig.h",
+        "-D__KERNEL__",
+        "--target=x86_64-linux-gnu",
+        "-fintegrated-as",
+        "-Werror=unknown-warning-option",
+        "-Werror=ignored-optimization-argument",
+        "-Werror=option-ignored",
+        "-Werror=unused-command-line-argument",
+        "-m64",
+        "-O2",
+        "-std=gnu11",
+        "-fms-extensions",
+        "-Wno-gnu",
+        "-Wno-microsoft-anon-tag",
+        "-fno-strict-aliasing",
+        "-fPIE",
+        "-fno-jump-tables",
+        "-Wundef",
+        "-DDISABLE_BRANCH_PROFILING",
+        "-mcmodel=small",
+        "-mno-red-zone",
+        "-mno-mmx",
+        "-mno-sse",
+        "-ffreestanding",
+        "-fshort-wchar",
+        "-fno-stack-protector",
+        "-Wno-address-of-packed-member",
+        "-Wno-pointer-sign",
+        "-fno-asynchronous-unwind-tables",
+        "-D__DISABLE_EXPORTS",
+        "-Wa,-mrelax-relocations=no",
+        "-include",
+        "include/linux/hidden.h",
+        "-Iarch/x86/boot/compressed",
+        "-I$(GENDIR)/arch/x86/boot/compressed",
+        "-iquote$(GENDIR)/arch/x86/boot/compressed",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":compressed_headers",
+        "//:pkg_headers",
+        "//arch/x86/boot/startup:lib",
+        "//:pkg_generated_under_arch_x86__include_generated_6",
+        "//arch/x86:x86_headers",
+    ],
+    alwayslink = True,
+    additional_compiler_inputs = ["vmlinux.bin.xz"],
+    per_source_copts = {
+        "cmdline.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/cmdline\\\"",
+            "-DKBUILD_BASENAME=\\\"cmdline\\\"",
+            "-DKBUILD_MODNAME=\\\"cmdline\\\"",
+            "-D__KBUILD_MODNAME=cmdline",
+        ],
+        "cpuflags.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/cpuflags\\\"",
+            "-DKBUILD_BASENAME=\\\"cpuflags\\\"",
+            "-DKBUILD_MODNAME=\\\"cpuflags\\\"",
+            "-D__KBUILD_MODNAME=cpuflags",
+        ],
+        "error.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/error\\\"",
+            "-DKBUILD_BASENAME=\\\"error\\\"",
+            "-DKBUILD_MODNAME=\\\"error\\\"",
+            "-D__KBUILD_MODNAME=error",
+        ],
+        "head_64.S": [
+            "-D__ASSEMBLY__",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/head_64\\\"",
+            "-DKBUILD_MODNAME=\\\"head_64\\\"",
+            "-D__KBUILD_MODNAME=head_64",
+        ],
+        "ident_map_64.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/ident_map_64\\\"",
+            "-DKBUILD_BASENAME=\\\"ident_map_64\\\"",
+            "-DKBUILD_MODNAME=\\\"ident_map_64\\\"",
+            "-D__KBUILD_MODNAME=ident_map_64",
+        ],
+        "idt_64.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/idt_64\\\"",
+            "-DKBUILD_BASENAME=\\\"idt_64\\\"",
+            "-DKBUILD_MODNAME=\\\"idt_64\\\"",
+            "-D__KBUILD_MODNAME=idt_64",
+        ],
+        "idt_handlers_64.S": [
+            "-D__ASSEMBLY__",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/idt_handlers_64\\\"",
+            "-DKBUILD_MODNAME=\\\"idt_handlers_64\\\"",
+            "-D__KBUILD_MODNAME=idt_handlers_64",
+        ],
+        "kernel_info.S": [
+            "-D__ASSEMBLY__",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/kernel_info\\\"",
+            "-DKBUILD_MODNAME=\\\"kernel_info\\\"",
+            "-D__KBUILD_MODNAME=kernel_info",
+        ],
+        "misc.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/misc\\\"",
+            "-DKBUILD_BASENAME=\\\"misc\\\"",
+            "-DKBUILD_MODNAME=\\\"misc\\\"",
+            "-D__KBUILD_MODNAME=misc",
+        ],
+        "pgtable_64.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/pgtable_64\\\"",
+            "-DKBUILD_BASENAME=\\\"pgtable_64\\\"",
+            "-DKBUILD_MODNAME=\\\"pgtable_64\\\"",
+            "-D__KBUILD_MODNAME=pgtable_64",
+        ],
+        "piggy.S": [
+            "-D__ASSEMBLY__",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/piggy\\\"",
+            "-DKBUILD_MODNAME=\\\"piggy\\\"",
+            "-D__KBUILD_MODNAME=piggy",
+        ],
+        "string.c": [
+            "-include",
+            "include/linux/compiler_types.h",
+            "-DKBUILD_MODFILE=\\\"arch/x86/boot/compressed/string\\\"",
+            "-DKBUILD_BASENAME=\\\"string\\\"",
+            "-DKBUILD_MODNAME=\\\"string\\\"",
+            "-D__KBUILD_MODNAME=string",
+        ],
+    },
+)
+
+# CMake `vmlinux` (executable)
+# linked by the reference with the linker itself (ld): its line, inputs by label
+cc_raw_link(
+    name = "arch_x86_boot_compressed_vmlinux",
+    out = "vmlinux",
+    args = [
+        "-m",
+        "elf_x86_64",
+        "-pie",
+        "--no-dynamic-linker",
+        "--orphan-handling=warn",
+        "-z",
+        "noexecstack",
+        "-T",
+        "$(location vmlinux.lds)",
+        "--whole-archive",
+        "$(location :arch_x86_boot_compressed_vmlinux_objs)",
+        "--no-whole-archive",
+        "$(location //arch/x86/boot/startup:lib)",
+    ],
+    srcs = ["vmlinux.lds"],
+    deps = [
+        ":arch_x86_boot_compressed_vmlinux_objs",
+        "//arch/x86/boot/startup:lib",
+    ],
+)

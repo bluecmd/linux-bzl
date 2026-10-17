@@ -1,0 +1,99 @@
+# arch/x86/kernel/apic: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   arch_x86_kernel_apic_built-in (static_library) -> cc_library arch_x86_kernel_apic_built_in
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "apic_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `arch_x86_kernel_apic_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_kernel_apic_built_in_objects",
+    lib = ":arch_x86_kernel_apic_built_in",
+    objects = [
+        "apic.o",
+        "apic_common.o",
+        "apic_flat_64.o",
+        "apic_noop.o",
+        "hw_nmi.o",
+        "init.o",
+        "io_apic.o",
+        "ipi.o",
+        "msi.o",
+        "probe_64.o",
+        "vector.o",
+        "x2apic_cluster.o",
+        "x2apic_phys.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "arch_x86_kernel_apic_built_in",
+    srcs = [
+        "apic.c",
+        "apic_common.c",
+        "apic_flat_64.c",
+        "apic_noop.c",
+        "hw_nmi.c",
+        "init.c",
+        "io_apic.c",
+        "ipi.c",
+        "msi.c",
+        "probe_64.c",
+        "vector.c",
+        "x2apic_cluster.c",
+        "x2apic_phys.c",
+    ],
+    copts = [
+        "-Iarch/x86/kernel/apic",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":apic_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//arch/x86:x86_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "apic.o",
+        "apic_common.o",
+        "apic_noop.o",
+        "ipi.o",
+        "vector.o",
+        "init.o",
+        "hw_nmi.o",
+        "io_apic.o",
+        "msi.o",
+        "x2apic_phys.o",
+        "x2apic_cluster.o",
+        "apic_flat_64.o",
+        "probe_64.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

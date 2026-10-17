@@ -1,0 +1,34 @@
+# The test image: the kernel's bzImage plus a minimal initrd (busybox, dropbear
+# with the test key, a static address on virtio-net) that the loop boots under
+# QEMU/KVM and SSHes into. The packages are Alpine's, pinned by hash in
+# MODULE.bazel (http_file). Not part of the kernel's parity.
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["init", "test_authorized_keys", "make-initrd.sh"])
+
+APKS = [
+    "@apk_busybox_static//file",
+    "@apk_dropbear//file",
+    "@apk_musl//file",
+    "@apk_skalibs//file",
+    "@apk_skalibs_libs//file",
+    "@apk_utmps//file",
+    "@apk_utmps_libs//file",
+    "@apk_zlib//file",
+]
+
+genrule(
+    name = "initrd",
+    srcs = ["init", "test_authorized_keys"] + APKS,
+    outs = ["initrd.cpio.gz"],
+    cmd = "$(location make-initrd.sh) $@ $(location init) $(location test_authorized_keys) " + " ".join(["$(location %s)" % a for a in APKS]),
+    tools = ["make-initrd.sh"],
+)
+
+filegroup(
+    name = "image",
+    srcs = [
+        ":initrd",
+        "//arch/x86/boot:bzImage",
+    ],
+)

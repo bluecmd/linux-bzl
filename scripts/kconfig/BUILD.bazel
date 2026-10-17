@@ -1,0 +1,81 @@
+# scripts/kconfig: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("//bazel/rules:bison.bzl", "bison")
+load("//bazel/rules:flex.bzl", "flex")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "kconfig_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# host tool the reference builds with `clang` (host tool run by conf); listed
+# under a genrule's `tools`, Bazel builds it for the exec platform
+cc_binary(
+    name = "conf",
+    srcs = [
+        "conf.c",
+        "confdata.c",
+        "expr.c",
+        "lexer.lex.c",
+        "menu.c",
+        "parser.tab.c",
+        "preprocess.c",
+        "symbol.c",
+        "util.c",
+        "parser.tab.h",
+    ],
+    copts = [
+        "-Wstrict-prototypes",
+        "-O2",
+        "-Iscripts/include",
+        "-Iscripts/kconfig",
+        "-fuse-ld=lld",
+    ],
+    deps = [
+        ":kconfig_headers",
+        "//:pkg_headers",
+        "//scripts:scripts_headers",
+    ],
+    tags = ["manual"],
+)
+
+# the capture does not say what wrote scripts/kconfig/lexer.lex.c -- a pattern
+# rule (flex) the build ran in its own tree, below exec capture's
+# resolution. The rule runs the generator the reference's way -- the paths
+# the reference spelled --
+# and reproduces the reference's bytes; the differ checks the content.
+flex(
+    name = "lexer",
+    src = "lexer.l",
+    outs = ["lexer.lex.c"],
+)
+
+# the capture does not say what wrote scripts/kconfig/parser.tab.c, scripts/kconfig/parser.tab.h -- a pattern
+# rule (bison) the build ran in its own tree, below exec capture's
+# resolution. The rule runs the generator the reference's way -- the paths
+# the reference spelled, bison's include guard comes from the `-o` argument --
+# and reproduces the reference's bytes; the differ checks the content.
+bison(
+    name = "parser",
+    src = "parser.y",
+    outs = [
+        "parser.tab.c",
+        "parser.tab.h",
+    ],
+)

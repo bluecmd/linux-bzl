@@ -1,0 +1,44 @@
+# kernel/trace/rv: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+    "monitors/deadline/Kconfig",
+    "monitors/nomiss/Kconfig",
+    "monitors/nrp/Kconfig",
+    "monitors/opid/Kconfig",
+    "monitors/pagefault/Kconfig",
+    "monitors/rtapp/Kconfig",
+    "monitors/sched/Kconfig",
+    "monitors/sco/Kconfig",
+    "monitors/scpd/Kconfig",
+    "monitors/sleep/Kconfig",
+    "monitors/snep/Kconfig",
+    "monitors/snroc/Kconfig",
+    "monitors/sssw/Kconfig",
+    "monitors/stall/Kconfig",
+    "monitors/sts/Kconfig",
+    "monitors/wip/Kconfig",
+    "monitors/wwnr/Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "rv_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)

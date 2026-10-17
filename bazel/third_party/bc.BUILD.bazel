@@ -1,0 +1,127 @@
+# BUILD file installed into the fetched GNU bc sources (MODULE.bazel). The
+# kernel's timeconst.h generator runs `bc -q kernel/time/timeconst.bc`; the
+# reference took bc from the machine's PATH, the build takes it from this
+# pinned source. Upstream builds bc in two stages -- the math library
+# (libmath.b) is compiled to C by a bc built against a placeholder array,
+# and the real bc is built against the result (bc/Makefile.am's libmath.h
+# rule) -- and this reproduces that bootstrap; the resulting timeconst
+# output is byte-identical to the reference build's include/generated/
+# timeconst.h.
+#
+# The `ed` reformat of fix-libmath_h (upstream's one-purpose script) is the
+# awk in the libmath genrule: first line wrapped as `{"...`, the rest
+# quoted, the last kept line closed with `0}` (the array's NUL entry) --
+# upstream drops the generator's final line, so does the awk.
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+# the tree's headers: Bazel stages only declared inputs, so the quote-includes
+# below need every one of them in srcs (the .c lists name the sources only)
+_HEADERS = [
+    "bc/bc.h",
+    "bc/bcdefs.h",
+    "bc/const.h",
+    "bc/global.h",
+    "bc/proto.h",
+    "h/getopt.h",
+    "h/number.h",
+]
+
+_SRCS = [
+    "bc/bc.c",
+    "bc/execute.c",
+    "bc/load.c",
+    "bc/main.c",
+    "bc/scan.c",
+    "bc/storage.c",
+    "bc/util.c",
+    "bc/warranty.c",
+    "bc/global.c",
+    "lib/number.c",
+]
+
+write_file(
+    name = "config_gen",
+    out = "gen/config.h",
+    content = [
+        "#define HAVE_STDLIB_H 1",
+        "#define HAVE_STRING_H 1",
+        "#define HAVE_UNISTD_H 1",
+        "#define HAVE_STDDEF_H 1",
+        "#define HAVE_STDARG_H 1",
+        "#define HAVE_ERRNO_H 1",
+        "#define HAVE_CTYPE_H 1",
+        "#define HAVE_LOCALE_H 1",
+        "#define HAVE_MALLOC_H 1",
+        "#define HAVE_MEMORY_H 1",
+        "#define HAVE_LIMITS_H 1",
+        "#define HAVE_TERMIOS_H 1",
+        "#define HAVE_SYS_IOCTL_H 1",
+        "#define HAVE_SYS_TIME_H 1",
+        "#define HAVE_SYS_TYPES_H 1",
+        "#define HAVE_SYS_PARAM_H 1",
+        "#define HAVE_SYS_STAT_H 1",
+        "#define HAVE_SYS_WAIT_H 1",
+        "#define HAVE_SIGNAL_H 1",
+        "#define HAVE_SETVBUF 1",
+        "#define HAVE_MEMCPY 1",
+        "#define HAVE_ISGRAPH 1",
+        "#define HAVE_FERROR 1",
+        "#define HAVE_FILENO 1",
+        "#define RETSIGTYPE void",
+        "#define SIZEOF_LONG 8",
+        "#define STDC_HEADERS 1",
+        "#define VERSION \"1.07.1\"",
+        "#define PACKAGE_VERSION \"1.07.1\"",
+        "#define PACKAGE \"bc\"",
+        "#define PACKAGE_NAME \"bc\"",
+        "#define BC_COPYRIGHT \"Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006, 2008, 2012-2017 Free Software Foundation, Inc.\"",
+    ],
+)
+
+# the placeholder the bootstrap's first bc compiles against (upstream:
+# `echo '{0}' > libmath.h` before building fbc)
+write_file(
+    name = "libmath_stage1",
+    out = "gen1/libmath.h",
+    content = ["{0}"],
+)
+
+cc_binary(
+    name = "fbc",
+    srcs = _SRCS + _HEADERS + [
+        ":config_gen",
+        ":libmath_stage1",
+    ],
+    includes = ["bc", "gen", "gen1", "h"],
+)
+
+# the bootstrap's second stage: the first bc compiles libmath.b to the C
+# array (`./fbc -c $(srcdir)/libmath.b </dev/null >libmath.h`)
+genrule(
+    name = "libmath_raw",
+    srcs = ["bc/libmath.b"],
+    outs = ["raw/libmath.h"],
+    cmd = "$(location :fbc) -c $(location bc/libmath.b) </dev/null > $@",
+    tools = [":fbc"],
+)
+
+genrule(
+    name = "libmath",
+    srcs = [":libmath_raw"],
+    outs = ["gen/libmath.h"],
+    # upstream's fix-libmath_h (an ed script), as an awk: quote every line,
+    # the first one opens the array (`{"`), the last one ends it with the
+    # NULL-sentinel entry (ed's `s/,$$/,0}/` keeps the comma: `",0}`)
+    cmd = "awk '{l[NR]=$$0} END{printf \"{\\\"%s\\\",\\n\",l[1]; for(i=2;i<NR;i++) printf \"\\\"%s\\\",\\n\",l[i]; printf \"\\\"%s\\\",0}\\n\",l[NR]}' < $< > $@",
+)
+
+cc_binary(
+    name = "bc",
+    srcs = _SRCS + _HEADERS + [
+        ":config_gen",
+        ":libmath",
+    ],
+    includes = ["bc", "gen", "h"],
+    visibility = ["//visibility:public"],
+)
