@@ -1,0 +1,29 @@
+PARITY build=GREEN diff=converged errors=0 warnings=14 artifacts=converged 0 errors
+IDIOM score=0.2 (delta +0.0) rules=2930 tus=1236 genrules=1 dirs=120
+CONVERGED  errors=0  warnings=14
+
+[warn] defines_diff x7
+      7  defines differ
+  bazel_only (usually tolerated):
+        7  NDEBUG
+        7  _FORTIFY_SOURCE=1
+
+[warn] extra_tu x5
+      5  source compiled in bazel but not cmake
+
+[warn] generated_tool_diff x1
+      1  generator differs: cmake in-tree-exe scripts/kconfig/conf (tool_map -> conf) vs bazel script auto_conf.run_shell_0.sh (//:auto_conf); record codegen.tool_map for an intentional swap [content verified: warning]
+  cmake_only (add on bazel / accept in config):
+        1  scripts/kconfig/conf
+  bazel_only (usually tolerated):
+        1  auto_conf.run_shell_0.sh
+
+[warn] generated_args_diff x1
+      1  cmake generator arguments missing on the bazel side (in-tree-exe conf vs //:auto_conf) [content verified: warning]
+  cmake_only (add on bazel / accept in config):
+        1  --syncconfig
+        1  Kconfig
+
+excluded (not diffed):
+  cmake: unknown=1, test=9, codegen_benign=50
+  bazel: aggregate=553, codegen_benign=39, host_tool=13
