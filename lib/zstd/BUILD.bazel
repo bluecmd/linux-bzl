@@ -1,0 +1,142 @@
+# lib/zstd: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   lib_zstd_built-in (static_library) -> cc_library lib_zstd_built_in
+#
+# Notes:
+#   - `lib_zstd_built-in`: the reference built lib/zstd/built-in.a with its own ar recipe; it is
+#     a genrule over the captured argv (the member order is the link order), not an aggregate
+#     merged in Bazel's order
+#   - `lib_zstd_built_in`: TUs whose argvs differ only in Kbuild's per-object defines -> one
+#     cc_per_source_library; the defines ride the per-source map (the rule computes what its
+#     arithmetic can)
+#   - lib_zstd_built_in_a: the ar recipe runs as an ar_archive rule (11 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "zstd_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], exclude = [
+        "common/debug.c",
+        "common/entropy_common.c",
+        "common/error_private.c",
+        "common/fse_decompress.c",
+        "common/zstd_common.c",
+        "decompress/huf_decompress.c",
+        "decompress/zstd_ddict.c",
+        "decompress/zstd_decompress.c",
+        "decompress/zstd_decompress_block.c",
+        "zstd_decompress_module.c",
+    ], allow_empty = True),
+    textual_hdrs = [
+        "common/debug.c",
+        "common/entropy_common.c",
+        "common/error_private.c",
+        "common/fse_decompress.c",
+        "common/zstd_common.c",
+        "decompress/huf_decompress.c",
+        "decompress/zstd_ddict.c",
+        "decompress/zstd_decompress.c",
+        "decompress/zstd_decompress_block.c",
+        "zstd_decompress_module.c",
+    ],
+)
+
+# the object(s) of `lib_zstd_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "lib_zstd_built_in_objects",
+    lib = ":lib_zstd_built_in",
+    objects = [
+        "common/debug.o",
+        "common/entropy_common.o",
+        "common/error_private.o",
+        "common/fse_decompress.o",
+        "common/zstd_common.o",
+        "decompress/huf_decompress.o",
+        "decompress/zstd_ddict.o",
+        "decompress/zstd_decompress.o",
+        "decompress/zstd_decompress_block.o",
+        "zstd_common_module.o",
+        "zstd_decompress_module.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "lib_zstd_built_in",
+    srcs = [
+        "common/debug.c",
+        "common/entropy_common.c",
+        "common/error_private.c",
+        "common/fse_decompress.c",
+        "common/zstd_common.c",
+        "decompress/huf_decompress.c",
+        "decompress/zstd_ddict.c",
+        "decompress/zstd_decompress.c",
+        "decompress/zstd_decompress_block.c",
+        "zstd_common_module.c",
+        "zstd_decompress_module.c",
+    ],
+    copts = [
+        "-Ilib/zstd",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":zstd_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//lib:lib_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    kbuild_modules = {
+        "zstd_common": [
+            "common/debug.c",
+            "common/entropy_common.c",
+            "common/error_private.c",
+            "common/fse_decompress.c",
+            "common/zstd_common.c",
+            "zstd_common_module.c",
+        ],
+        "zstd_decompress": [
+            "decompress/huf_decompress.c",
+            "decompress/zstd_ddict.c",
+            "decompress/zstd_decompress.c",
+            "decompress/zstd_decompress_block.c",
+            "zstd_decompress_module.c",
+        ],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "zstd_decompress_module.o",
+        "decompress/huf_decompress.o",
+        "decompress/zstd_ddict.o",
+        "decompress/zstd_decompress.o",
+        "decompress/zstd_decompress_block.o",
+        "zstd_common_module.o",
+        "common/debug.o",
+        "common/entropy_common.o",
+        "common/error_private.o",
+        "common/fse_decompress.o",
+        "common/zstd_common.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

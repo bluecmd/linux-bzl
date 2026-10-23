@@ -1,0 +1,118 @@
+# drivers/tty/serial/8250: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_tty_serial_8250_built-in (static_library) -> cc_library drivers_tty_serial_8250_built_in
+#
+# Notes:
+#   - `drivers_tty_serial_8250_built-in`: the reference built drivers/tty/serial/8250/built-in.a
+#     with its own ar recipe; it is a genrule over the captured argv (the member order is the
+#     link order), not an aggregate merged in Bazel's order
+#   - `drivers_tty_serial_8250_built_in`: TUs whose argvs differ only in Kbuild's per-object
+#     defines -> one cc_per_source_library; the defines ride the per-source map (the rule
+#     computes what its arithmetic can)
+#   - drivers_tty_serial_8250_built_in_a: the ar recipe runs as an ar_archive rule (11
+#     member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "8250_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_tty_serial_8250_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_tty_serial_8250_built_in_objects",
+    lib = ":drivers_tty_serial_8250_built_in",
+    objects = [
+        "8250_core.o",
+        "8250_dwlib.o",
+        "8250_early.o",
+        "8250_exar.o",
+        "8250_lpss.o",
+        "8250_mid.o",
+        "8250_pci.o",
+        "8250_pcilib.o",
+        "8250_pericom.o",
+        "8250_platform.o",
+        "8250_port.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "drivers_tty_serial_8250_built_in",
+    srcs = [
+        "8250_core.c",
+        "8250_dwlib.c",
+        "8250_early.c",
+        "8250_exar.c",
+        "8250_lpss.c",
+        "8250_mid.c",
+        "8250_pci.c",
+        "8250_pcilib.c",
+        "8250_pericom.c",
+        "8250_platform.c",
+        "8250_port.c",
+    ],
+    copts = [
+        "-Idrivers/tty/serial/8250",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":8250_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    kbuild_modules = {
+        "8250": [
+            "8250_core.c",
+            "8250_platform.c",
+        ],
+        "8250_base": [
+            "8250_dwlib.c",
+            "8250_pcilib.c",
+            "8250_port.c",
+        ],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "8250_core.o",
+        "8250_platform.o",
+        "8250_port.o",
+        "8250_dwlib.o",
+        "8250_pcilib.o",
+        "8250_early.o",
+        "8250_exar.o",
+        "8250_lpss.o",
+        "8250_mid.o",
+        "8250_pci.o",
+        "8250_pericom.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

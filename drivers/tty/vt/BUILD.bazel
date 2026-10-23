@@ -1,0 +1,168 @@
+# drivers/tty/vt: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_tty_vt_built-in (static_library) -> cc_library drivers_tty_vt_built_in
+#
+# Notes:
+#   - `drivers_tty_vt_built-in`: the reference built drivers/tty/vt/built-in.a with its own ar
+#     recipe; it is a genrule over the captured argv (the member order is the link order), not
+#     an aggregate merged in Bazel's order
+#   - defkeymap_c: the recipe runs as a copy_file rule (recipe kind `copy`)
+#   - ucs_width_table_h: the recipe runs as a copy_file rule (recipe kind `copy`)
+#   - ucs_recompose_table_h: the recipe runs as a copy_file rule (recipe kind `copy`)
+#   - ucs_fallback_table_h: the recipe runs as a copy_file rule (recipe kind `copy`)
+#   - consolemap_deftbl_c: the recipe runs as a tool_stdout rule (recipe kind `tool_stdout`)
+#   - `drivers_tty_vt_built_in`: TUs whose argvs differ only in Kbuild's per-object defines ->
+#     one cc_per_source_library; the defines ride the per-source map (the rule computes what its
+#     arithmetic can)
+#   - drivers_tty_vt_built_in_a: the ar recipe runs as an ar_archive rule (9 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:copy_file.bzl", "copy_file")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("//bazel/rules:tool_stdout.bzl", "tool_stdout")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "vt_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# host tool the reference builds with `clang` (host tool run by conmakehash); listed
+# under a genrule's `tools`, Bazel builds it for the exec platform
+cc_binary(
+    name = "conmakehash",
+    srcs = ["conmakehash.c"],
+    copts = [
+        "-Wstrict-prototypes",
+        "-O2",
+        "-Iscripts/include",
+        "-Idrivers/tty/vt",
+        "-I$(GENDIR)/drivers/tty/vt",
+        "-fuse-ld=lld",
+    ],
+    deps = [
+        ":vt_headers",
+        "//:pkg_headers",
+        "//drivers:drivers_headers",
+        "//scripts:scripts_headers",
+    ],
+    tags = ["manual"],
+)
+
+# the object(s) of `drivers_tty_vt_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_tty_vt_built_in_objects",
+    lib = ":drivers_tty_vt_built_in",
+    objects = [
+        "consolemap.o",
+        "consolemap_deftbl.o",
+        "defkeymap.o",
+        "keyboard.o",
+        "selection.o",
+        "ucs.o",
+        "vc_screen.o",
+        "vt.o",
+        "vt_ioctl.o",
+    ],
+)
+
+# conmakehash @ None: drivers/tty/vt/consolemap_deftbl.c
+# the one-off generator step: the tool's output the file it names
+tool_stdout(
+    name = "consolemap_deftbl_c",
+    tool = ":conmakehash",
+    srcs = ["cp437.uni"],
+    out = "consolemap_deftbl.c",
+    cmd = "$(location :conmakehash) $(location cp437.uni) > $@",
+)
+
+# sh @ recipe line: drivers/tty/vt/defkeymap.c
+# Kbuild's `COPY` step: the input's bytes, unchanged
+copy_file(
+    name = "defkeymap_c",
+    src = "defkeymap.c_shipped",
+    out = "defkeymap.c",
+)
+
+# sh @ recipe line: drivers/tty/vt/ucs_fallback_table.h
+# Kbuild's `COPY` step: the input's bytes, unchanged
+copy_file(
+    name = "ucs_fallback_table_h",
+    src = "ucs_fallback_table.h_shipped",
+    out = "ucs_fallback_table.h",
+)
+
+# sh @ recipe line: drivers/tty/vt/ucs_recompose_table.h
+# Kbuild's `COPY` step: the input's bytes, unchanged
+copy_file(
+    name = "ucs_recompose_table_h",
+    src = "ucs_recompose_table.h_shipped",
+    out = "ucs_recompose_table.h",
+)
+
+# sh @ recipe line: drivers/tty/vt/ucs_width_table.h
+# Kbuild's `COPY` step: the input's bytes, unchanged
+copy_file(
+    name = "ucs_width_table_h",
+    src = "ucs_width_table.h_shipped",
+    out = "ucs_width_table.h",
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "drivers_tty_vt_built_in",
+    srcs = [
+        "consolemap.c",
+        "consolemap_deftbl.c",
+        "defkeymap.c",
+        "keyboard.c",
+        "selection.c",
+        "ucs.c",
+        "vc_screen.c",
+        "vt.c",
+        "vt_ioctl.c",
+    ],
+    copts = [
+        "-Idrivers/tty/vt",
+        "-I$(GENDIR)/drivers/tty/vt",
+        "-iquote$(GENDIR)/drivers/tty/vt",
+    ],
+    deps = [
+        ":vt_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__drivers_tty__include_generated",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "vt_ioctl.o",
+        "vc_screen.o",
+        "selection.o",
+        "keyboard.o",
+        "vt.o",
+        "defkeymap.o",
+        "consolemap.o",
+        "consolemap_deftbl.o",
+        "ucs.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

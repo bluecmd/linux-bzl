@@ -1,0 +1,44 @@
+# drivers/media/platform/sunxi/sun4i-csi: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#
+# Notes:
+#   - `drivers_media_platform_sunxi_sun4i-csi_built-in`: the reference built
+#     drivers/media/platform/sunxi/sun4i-csi/built-in.a with its own ar recipe; it is a genrule
+#     over the captured argv (the member order is the link order), not an aggregate merged in
+#     Bazel's order
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "sun4i_csi_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "drivers_media_platform_sunxi_sun4i_csi_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

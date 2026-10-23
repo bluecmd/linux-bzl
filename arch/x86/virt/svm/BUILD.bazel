@@ -1,0 +1,66 @@
+# arch/x86/virt/svm: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   arch_x86_virt_svm_built-in (static_library) -> cc_library arch_x86_virt_svm_built_in
+#
+# Notes:
+#   - `arch_x86_virt_svm_built-in`: the reference built arch/x86/virt/svm/built-in.a with its
+#     own ar recipe; it is a genrule over the captured argv (the member order is the link
+#     order), not an aggregate merged in Bazel's order
+#   - arch_x86_virt_svm_built_in_a: the ar recipe runs as an ar_archive rule (1 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "svm_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `arch_x86_virt_svm_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_virt_svm_built_in_objects",
+    lib = ":arch_x86_virt_svm_built_in",
+    objects = ["cmdline.o"],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "arch_x86_virt_svm_built_in",
+    srcs = ["cmdline.c"],
+    copts = [
+        "-Iarch/x86/virt/svm",
+        "-DKBUILD_MODFILE=\\\"arch/x86/virt/svm/cmdline\\\"",
+        "-DKBUILD_BASENAME=\\\"cmdline\\\"",
+        "-DKBUILD_MODNAME=\\\"cmdline\\\"",
+        "-D__KBUILD_MODNAME=cmdline",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":svm_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//arch/x86:x86_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    out = "built-in.a",
+    op = "cDPrST",
+    members = ["cmdline.o"],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
