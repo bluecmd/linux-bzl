@@ -1,0 +1,1 @@
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILIEYu8ljOFhCmZyA7bS/AobKREoR3qaSUE6BpmpYOPi linux-bzl-test-initrd throwaway key (NOT a personal key): lets the boot test SSH into the test VM

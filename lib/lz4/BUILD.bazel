@@ -1,0 +1,68 @@
+# lib/lz4: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   lib_lz4_built-in (static_library) -> cc_library lib_lz4_built_in
+#
+# Notes:
+#   - `lib_lz4_built-in`: the reference built lib/lz4/built-in.a with its own ar recipe; it is a
+#     genrule over the captured argv (the member order is the link order), not an aggregate
+#     merged in Bazel's order
+#   - lib_lz4_built_in_a: the ar recipe runs as an ar_archive rule (1 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "lz4_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], exclude = ["lz4_decompress.c"], allow_empty = True),
+    textual_hdrs = ["lz4_decompress.c"],
+)
+
+# the object(s) of `lib_lz4_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "lib_lz4_built_in_objects",
+    lib = ":lib_lz4_built_in",
+    objects = ["lz4_decompress.o"],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "lib_lz4_built_in",
+    srcs = ["lz4_decompress.c"],
+    copts = [
+        "-O3",
+        "-Ilib/lz4",
+        "-DKBUILD_MODFILE=\\\"lib/lz4/lz4_decompress\\\"",
+        "-DKBUILD_BASENAME=\\\"lz4_decompress\\\"",
+        "-DKBUILD_MODNAME=\\\"lz4_decompress\\\"",
+        "-D__KBUILD_MODNAME=lz4_decompress",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":lz4_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//lib:lib_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    out = "built-in.a",
+    op = "cDPrST",
+    members = ["lz4_decompress.o"],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
