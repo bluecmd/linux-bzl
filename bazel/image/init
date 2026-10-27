@@ -1,0 +1,17 @@
+#!/bin/sh
+# linux-bzl test initrd: a serial console and an SSH server on virtio-net,
+# enough for the boot test (`ssh root@... true`) and for a human to log in.
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mkdir -p /dev/pts /tmp /var/run /var/log /etc/dropbear
+mount -t devpts devpts /dev/pts
+mount -t tmpfs tmpfs /tmp
+echo linux-bzl > /proc/sys/kernel/hostname
+ip link set lo up
+ip link set eth0 up
+ip addr add 10.0.2.15/24 dev eth0
+ip route add default via 10.0.2.2
+echo "linux-bzl: $(uname -r) up, starting dropbear" > /dev/console
+dropbear -R -E -B -p 22 2>/dev/console
+while true; do setsid sh -c 'exec sh </dev/ttyS0 >/dev/ttyS0 2>&1'; done

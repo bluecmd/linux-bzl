@@ -1,0 +1,124 @@
+# fs/netfs: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   fs_netfs_built-in (static_library) -> cc_library fs_netfs_built_in
+#
+# Notes:
+#   - `fs_netfs_built-in`: the reference built fs/netfs/built-in.a with its own ar recipe; it is
+#     a genrule over the captured argv (the member order is the link order), not an aggregate
+#     merged in Bazel's order
+#   - `fs_netfs_built_in`: TUs whose argvs differ only in Kbuild's per-object defines -> one
+#     cc_per_source_library; the defines ride the per-source map (the rule computes what its
+#     arithmetic can)
+#   - fs_netfs_built_in_a: the ar recipe runs as an ar_archive rule (17 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "netfs_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `fs_netfs_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "fs_netfs_built_in_objects",
+    lib = ":fs_netfs_built_in",
+    objects = [
+        "buffered_read.o",
+        "buffered_write.o",
+        "direct_read.o",
+        "direct_write.o",
+        "iterator.o",
+        "locking.o",
+        "main.o",
+        "misc.o",
+        "objects.o",
+        "read_collect.o",
+        "read_pgpriv2.o",
+        "read_retry.o",
+        "read_single.o",
+        "rolling_buffer.o",
+        "write_collect.o",
+        "write_issue.o",
+        "write_retry.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "fs_netfs_built_in",
+    srcs = [
+        "buffered_read.c",
+        "buffered_write.c",
+        "direct_read.c",
+        "direct_write.c",
+        "iterator.c",
+        "locking.c",
+        "main.c",
+        "misc.c",
+        "objects.c",
+        "read_collect.c",
+        "read_pgpriv2.c",
+        "read_retry.c",
+        "read_single.c",
+        "rolling_buffer.c",
+        "write_collect.c",
+        "write_issue.c",
+        "write_retry.c",
+    ],
+    copts = [
+        "-Ifs/netfs",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":netfs_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//fs:fs_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "netfs",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "buffered_read.o",
+        "buffered_write.o",
+        "direct_read.o",
+        "direct_write.o",
+        "iterator.o",
+        "locking.o",
+        "main.o",
+        "misc.o",
+        "objects.o",
+        "read_collect.o",
+        "read_pgpriv2.o",
+        "read_retry.o",
+        "read_single.o",
+        "rolling_buffer.o",
+        "write_collect.o",
+        "write_issue.o",
+        "write_retry.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

@@ -1,0 +1,43 @@
+# scripts/basic: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "basic_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# host tool the reference builds with `clang` (host tool run by ); listed
+# under a genrule's `tools`, Bazel builds it for the exec platform
+cc_binary(
+    name = "fixdep",
+    srcs = ["fixdep.c"],
+    copts = [
+        "-Wstrict-prototypes",
+        "-O2",
+        "-Iscripts/include",
+        "-Iscripts/basic",
+        "-fuse-ld=lld",
+    ],
+    deps = [
+        ":basic_headers",
+        "//:pkg_headers",
+        "//scripts:scripts_headers",
+    ],
+    tags = ["manual"],
+)

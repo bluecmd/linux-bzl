@@ -1,0 +1,72 @@
+# scripts: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kbuild.include",
+    "Kconfig.include",
+    "Makefile.build",
+    "Makefile.compiler",
+    "Makefile.lib",
+    "as-version.sh",
+    "build-version",
+    "cc-can-link.sh",
+    "cc-version.sh",
+    "ld-version.sh",
+    "link-vmlinux.sh",
+    "min-tool-version.sh",
+    "mkcompile_h",
+    "mksysmap",
+    "rust_is_available.sh",
+    "rustc-llvm-version.sh",
+    "rustc-version.sh",
+    "syscallhdr.sh",
+    "syscalltbl.sh",
+    "tools-support-relr.sh",
+    "xz_wrap.sh",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "scripts_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# host tool the reference builds with `clang` (host tool run by link-vmlinux.sh); listed
+# under a genrule's `tools`, Bazel builds it for the exec platform
+cc_binary(
+    name = "sorttable",
+    srcs = [
+        "sorttable.c",
+        "elf-parse.c",
+    ],
+    copts = [
+        "-Wstrict-prototypes",
+        "-O2",
+        "-Iscripts/include",
+        "-Itools/include",
+        "-Iscripts",
+        "-I$(GENDIR)/scripts",
+        "-fuse-ld=lld",
+    ],
+    linkopts = ["-lpthread"],
+    deps = [
+        ":scripts_headers",
+        "//:pkg_headers",
+    ],
+    tags = ["manual"],
+)

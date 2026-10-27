@@ -1,0 +1,91 @@
+# drivers/char/hw_random: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   drivers_char_hw_random_built-in (static_library) -> cc_library drivers_char_hw_random_built_in
+#
+# Notes:
+#   - `drivers_char_hw_random_built-in`: the reference built drivers/char/hw_random/built-in.a
+#     with its own ar recipe; it is a genrule over the captured argv (the member order is the
+#     link order), not an aggregate merged in Bazel's order
+#   - `drivers_char_hw_random_built_in`: TUs whose argvs differ only in Kbuild's per-object
+#     defines -> one cc_per_source_library; the defines ride the per-source map (the rule
+#     computes what its arithmetic can)
+#   - drivers_char_hw_random_built_in_a: the ar recipe runs as an ar_archive rule (5 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "hw_random_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `drivers_char_hw_random_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "drivers_char_hw_random_built_in_objects",
+    lib = ":drivers_char_hw_random_built_in",
+    objects = [
+        "amd-rng.o",
+        "core.o",
+        "intel-rng.o",
+        "via-rng.o",
+        "virtio-rng.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "drivers_char_hw_random_built_in",
+    srcs = [
+        "amd-rng.c",
+        "core.c",
+        "intel-rng.c",
+        "via-rng.c",
+        "virtio-rng.c",
+    ],
+    copts = [
+        "-Idrivers/char/hw_random",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":hw_random_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//drivers:drivers_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    kbuild_modules = {
+        "rng-core": ["core.c"],
+    },
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "core.o",
+        "intel-rng.o",
+        "amd-rng.o",
+        "via-rng.o",
+        "virtio-rng.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
