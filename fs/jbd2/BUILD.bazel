@@ -1,0 +1,91 @@
+# fs/jbd2: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   fs_jbd2_built-in (static_library) -> cc_library fs_jbd2_built_in
+#
+# Notes:
+#   - `fs_jbd2_built-in`: the reference built fs/jbd2/built-in.a with its own ar recipe; it is a
+#     genrule over the captured argv (the member order is the link order), not an aggregate
+#     merged in Bazel's order
+#   - `fs_jbd2_built_in`: TUs whose argvs differ only in Kbuild's per-object defines -> one
+#     cc_per_source_library; the defines ride the per-source map (the rule computes what its
+#     arithmetic can)
+#   - fs_jbd2_built_in_a: the ar recipe runs as an ar_archive rule (6 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "Kconfig",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "jbd2_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `fs_jbd2_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "fs_jbd2_built_in_objects",
+    lib = ":fs_jbd2_built_in",
+    objects = [
+        "checkpoint.o",
+        "commit.o",
+        "journal.o",
+        "recovery.o",
+        "revoke.o",
+        "transaction.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "fs_jbd2_built_in",
+    srcs = [
+        "checkpoint.c",
+        "commit.c",
+        "journal.c",
+        "recovery.c",
+        "revoke.c",
+        "transaction.c",
+    ],
+    copts = [
+        "-Ifs/jbd2",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":jbd2_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//fs:fs_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "jbd2",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "transaction.o",
+        "commit.o",
+        "recovery.o",
+        "checkpoint.o",
+        "revoke.o",
+        "journal.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

@@ -1,0 +1,80 @@
+# kernel/entry: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   kernel_entry_built-in (static_library) -> cc_library kernel_entry_built_in
+#
+# Notes:
+#   - `kernel_entry_built-in`: the reference built kernel/entry/built-in.a with its own ar
+#     recipe; it is a genrule over the captured argv (the member order is the link order), not
+#     an aggregate merged in Bazel's order
+#   - `kernel_entry_built_in`: 2 flag groups differing by at most 8 tokens -> one
+#     cc_per_source_library with a per-source map
+#   - `kernel_entry_built_in`: TUs whose argvs differ only in Kbuild's per-object defines -> one
+#     cc_per_source_library; the defines ride the per-source map (the rule computes what its
+#     arithmetic can)
+#   - kernel_entry_built_in_a: the ar recipe runs as an ar_archive rule (3 member(s))
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:kernel_library.bzl", "kernel_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "entry_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `kernel_entry_built_in` a recipe reads, at the paths it names
+cc_object_files(
+    name = "kernel_entry_built_in_objects",
+    lib = ":kernel_entry_built_in",
+    objects = [
+        "common.o",
+        "syscall-common.o",
+        "syscall_user_dispatch.o",
+    ],
+)
+
+# the library, its archive (the reference's own ar recipe: members
+# in its order, which is the link order) and the objects a recipe
+# reads by path: the macro owns the archive
+kernel_library(
+    name = "kernel_entry_built_in",
+    srcs = [
+        "common.c",
+        "syscall-common.c",
+        "syscall_user_dispatch.c",
+    ],
+    copts = [
+        "-Ikernel/entry",
+        "-I$(GENDIR)",
+    ],
+    deps = [
+        ":entry_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//kernel:kernel_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    kbuild = "built-in",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "common.o",
+        "syscall-common.o",
+        "syscall_user_dispatch.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)

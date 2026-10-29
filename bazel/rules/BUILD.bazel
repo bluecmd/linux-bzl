@@ -1,0 +1,4 @@
+# any2bazel rules copied into the layer (bazel/rules of the tool).
+package(default_visibility = ["//visibility:public"])
+
+exports_files(glob(["*.bzl"]))
