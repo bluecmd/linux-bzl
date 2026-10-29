@@ -1,0 +1,16 @@
+PARITY build=GREEN diff=converged errors=0 warnings=12 artifacts=converged 0 errors
+IDIOM score=0.0 (delta +0.0) rules=2928 tus=1236 genrules=0 dirs=120
+CONVERGED  errors=0  warnings=12
+
+[warn] defines_diff x7
+      7  defines differ
+  bazel_only (usually tolerated):
+        7  NDEBUG
+        7  _FORTIFY_SOURCE=1
+
+[warn] extra_tu x5
+      5  source compiled in bazel but not cmake
+
+excluded (not diffed):
+  cmake: unknown=1, test=9, codegen_benign=50
+  bazel: aggregate=553, codegen_benign=39, host_tool=13
