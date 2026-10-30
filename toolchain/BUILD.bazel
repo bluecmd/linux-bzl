@@ -1,0 +1,7 @@
+# The kernel cc toolchain lives in @kernel_llvm (MODULE.bazel:
+# kernel_llvm_toolchain); this package holds its compile line,
+# kernel_flags.bzl, written by any2bazel's probe_kernel.py --common from the
+# recorded reference build, and the toolchain probe (bazel-probe.json).
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["kernel_flags.bzl", "bazel-probe.json"])

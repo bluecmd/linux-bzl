@@ -1,0 +1,203 @@
+# arch/x86/boot/startup: BUILD.bazel emitted by any2bazel emit_build.py from the reference model.
+#
+# Derived mechanically from model.capture.json (re-run the emitter
+# rather than editing the derived parts by hand; the differ is the oracle):
+#   arch_x86_boot_startup_gdt_idt (object_library) -> cc_library arch_x86_boot_startup_gdt_idt
+#   arch_x86_boot_startup_map_kernel (object_library) -> cc_library arch_x86_boot_startup_map_kernel
+#   lib (static_library) -> cc_library lib
+#
+# Notes:
+#   - `built-in`: the reference built arch/x86/boot/startup/built-in.a with its own ar recipe;
+#     it is a genrule over the captured argv (the member order is the link order), not an
+#     aggregate merged in Bazel's order
+#   - binutils -> gdt_idt.pi.o: not a compile input, but built_in reads it; emitted
+#   - gdt_idt_pi_o: the recipe runs as a objcopy rule (recipe kind `objcopy`)
+#   - binutils -> map_kernel.pi.o: not a compile input, but built_in reads it; emitted
+#   - map_kernel_pi_o: the recipe runs as a objcopy rule (recipe kind `objcopy`)
+#
+# What still needs a human / LLM decision:
+# TODO(any2bazel): forced include include/linux/hidden.h: declare it in hdrs of the consuming
+#                  target
+load("//bazel/rules:ar_archive.bzl", "ar_archive")
+load("//bazel/rules:cc_object_files.bzl", "cc_object_files")
+load("//bazel/rules:objcopy.bzl", "objcopy")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+exports_files([
+    "exports.h",
+])
+
+
+# Every header of this package its TUs can reach (Bazel only puts
+# declared files in the compile sandbox); hdrs alone add no include
+# root, so nothing is shadowed.
+cc_library(
+    name = "startup_headers",
+    hdrs = glob([
+        "**/*.h",
+        "**/*.hh",
+        "**/*.hpp",
+        "**/*.hxx",
+        "**/*.inc",
+        "**/*.inl",
+        "**/*.ipp",
+    ], allow_empty = True),
+)
+
+# the object(s) of `arch_x86_boot_startup_gdt_idt` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_boot_startup_gdt_idt_objects",
+    lib = ":arch_x86_boot_startup_gdt_idt",
+    objects = ["gdt_idt.o"],
+)
+
+# the object(s) of `arch_x86_boot_startup_map_kernel` a recipe reads, at the paths it names
+cc_object_files(
+    name = "arch_x86_boot_startup_map_kernel_objects",
+    lib = ":arch_x86_boot_startup_map_kernel",
+    objects = ["map_kernel.o"],
+)
+
+# the reference's own ar recipe: members in its order, which is
+# the link order (an aggregate's merge order is Bazel's, not the
+# reference's)
+ar_archive(
+    name = "arch_x86_boot_startup_built_in_a",
+    out = "built-in.a",
+    op = "cDPrST",
+    members = [
+        "gdt_idt.pi.o",
+        "map_kernel.pi.o",
+    ],
+    srcs = [
+        "gdt_idt.pi.o",
+        "map_kernel.pi.o",
+    ],
+    ar = "@kernel_llvm//:bin/llvm-ar",
+)
+
+# binutils @ None: arch/x86/boot/startup/gdt_idt.pi.o
+# the toolchain's objcopy over the link output
+objcopy(
+    name = "gdt_idt_pi_o",
+    src = "gdt_idt.o",
+    out = "gdt_idt.pi.o",
+    args = ["--prefix-symbols=__pi_"],
+)
+
+# binutils @ None: arch/x86/boot/startup/map_kernel.pi.o
+# the toolchain's objcopy over the link output
+objcopy(
+    name = "map_kernel_pi_o",
+    src = "map_kernel.o",
+    out = "map_kernel.pi.o",
+    args = ["--prefix-symbols=__pi_"],
+)
+
+# CMake `arch_x86_boot_startup_gdt_idt` (object library)
+# OBJECT library: consumers link every object; alwayslink mirrors that
+cc_library(
+    name = "arch_x86_boot_startup_gdt_idt",
+    srcs = ["gdt_idt.c"],
+    copts = [
+        "-D__DISABLE_EXPORTS",
+        "-mcmodel=small",
+        "-fPIC",
+        "-DDISABLE_BRANCH_PROFILING",
+        "-D__NO_FORTIFY",
+        "-include",
+        "include/linux/hidden.h",
+        "-Iarch/x86/boot/startup",
+        "-I$(GENDIR)/arch/x86/boot/startup",
+        "-DKBUILD_MODFILE=\\\"arch/x86/boot/startup/gdt_idt\\\"",
+        "-DKBUILD_BASENAME=\\\"gdt_idt\\\"",
+        "-DKBUILD_MODNAME=\\\"gdt_idt\\\"",
+        "-D__KBUILD_MODNAME=gdt_idt",
+    ],
+    deps = [
+        ":startup_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_for_arch_x86_boot_startup_gdt_idt",
+        "//arch/x86:x86_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    alwayslink = True,
+)
+
+# CMake `arch_x86_boot_startup_map_kernel` (object library)
+# OBJECT library: consumers link every object; alwayslink mirrors that
+cc_library(
+    name = "arch_x86_boot_startup_map_kernel",
+    srcs = ["map_kernel.c"],
+    copts = [
+        "-D__DISABLE_EXPORTS",
+        "-mcmodel=small",
+        "-fPIC",
+        "-DDISABLE_BRANCH_PROFILING",
+        "-D__NO_FORTIFY",
+        "-include",
+        "include/linux/hidden.h",
+        "-Iarch/x86/boot/startup",
+        "-I$(GENDIR)/arch/x86/boot/startup",
+        "-DKBUILD_MODFILE=\\\"arch/x86/boot/startup/map_kernel\\\"",
+        "-DKBUILD_BASENAME=\\\"map_kernel\\\"",
+        "-DKBUILD_MODNAME=\\\"map_kernel\\\"",
+        "-D__KBUILD_MODNAME=map_kernel",
+    ],
+    deps = [
+        ":startup_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_for_arch_x86_boot_startup_map_kernel",
+        "//arch/x86:x86_headers",
+    ],
+    features = ["kernel_compile_flags"],
+    alwayslink = True,
+)
+
+# CMake `lib` (static library)
+cc_library(
+    name = "lib",
+    srcs = ["la57toggle.S"],
+    copts = [
+        "-nostdinc",
+        "-Iarch/x86/include",
+        "-I$(GENDIR)/arch/x86/include",
+        "-Iarch/x86/include/generated",
+        "-I$(GENDIR)/arch/x86/include/generated",
+        "-Iinclude",
+        "-I$(GENDIR)/include",
+        "-Iarch/x86/include/uapi",
+        "-Iarch/x86/include/generated/uapi",
+        "-I$(GENDIR)/arch/x86/include/generated/uapi",
+        "-Iinclude/uapi",
+        "-Iinclude/generated/uapi",
+        "-I$(GENDIR)/include/generated/uapi",
+        "-include",
+        "include/linux/compiler-version.h",
+        "-include",
+        "include/linux/kconfig.h",
+        "-D__KERNEL__",
+        "--target=x86_64-linux-gnu",
+        "-fintegrated-as",
+        "-Werror=unknown-warning-option",
+        "-Werror=ignored-optimization-argument",
+        "-Werror=option-ignored",
+        "-Werror=unused-command-line-argument",
+        "-D__ASSEMBLY__",
+        "-fno-PIE",
+        "-m64",
+        "-D__DISABLE_EXPORTS",
+        "-Iarch/x86/boot/startup",
+        "-I$(GENDIR)/arch/x86/boot/startup",
+        "-DKBUILD_MODFILE=\\\"arch/x86/boot/startup/la57toggle\\\"",
+        "-DKBUILD_MODNAME=\\\"la57toggle\\\"",
+        "-D__KBUILD_MODNAME=la57toggle",
+    ],
+    deps = [
+        ":startup_headers",
+        "//:pkg_headers",
+        "//:pkg_generated_under_arch_x86__include_generated_2",
+        "//arch/x86:x86_headers",
+    ],
+)
